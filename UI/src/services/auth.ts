@@ -13,7 +13,7 @@ type LoginResponse = {
 const apiBase = import.meta.env.VITE_API_BASE_URL || ''
 
 export async function login(payload: LoginRequest) {
-  const res = await fetch(`${apiBase}/api/auth/login`, {
+  const res = await fetch(`${apiBase}/api/v1/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

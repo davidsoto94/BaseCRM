@@ -1,5 +1,6 @@
 import auth from '../services/auth'
 import { useNavigate } from 'react-router-dom'
+import NavigationBar from '../components/NavigationBar'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -10,12 +11,22 @@ export default function Home() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1>Welcome</h1>
-      <p>You are signed in.</p>
-      <button onClick={handleLogout} style={{ padding: '8px 12px' }}>
-        Sign out
-      </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavigationBar />
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+        <section className="rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+          <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">Welcome</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">You are signed in.</p>
+          <div className="mt-6">
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center rounded-md bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 focus:ring-offset-gray-100 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300 dark:focus:ring-gray-200 dark:focus:ring-offset-gray-900"
+            >
+              Sign out
+            </button>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

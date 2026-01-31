@@ -1,19 +1,31 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using BaseCRM.Entities;
+using BaseCRM.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseCRM.DbContexts;
 
-public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser, ApplicationRole, string>(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :
-        base(options)
-    { }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+#if DEBUG
+        optionsBuilder.EnableSensitiveDataLogging();
+#endif
+    }
+
+
+    public required DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Configure the default schema for all entities in this context
         modelBuilder.HasDefaultSchema("crm");
+
+        ConfigurePropertyConversions(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
 
@@ -21,9 +33,28 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.Entity<IdentityUserToken<string>>().ToTable("asp_net_user_tokens");
         modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("asp_net_user_logins");
         modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("asp_net_user_claims");
-        modelBuilder.Entity<IdentityRole>().ToTable("asp_net_roles");
+        modelBuilder.Entity<ApplicationRole>().ToTable("asp_net_roles");
         modelBuilder.Entity<IdentityUserRole<string>>().ToTable("asp_net_user_roles");
         modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("asp_net_role_claims");
+    }
+
+    /// <summary>
+	/// This method converts properties that are lists of enums to be stored as
+	/// comma-separated lists of string values in the database.
+	/// </summary>
+	/// <param name="modelBuilder"></param>
+	private void ConfigurePropertyConversions(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ApplicationRole>(entity =>
+        {
+            entity.Property(e => e.Permitions)
+                .HasConversion(
+                    v => string.Join(',', v.Select(e => e.ToString())),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                          .Select(e => Enum.Parse<PermissionEnum>(e))
+                          .ToList());
+        });
+
     }
 
 }
