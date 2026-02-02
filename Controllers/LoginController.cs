@@ -1,4 +1,5 @@
 ﻿using BaseCRM.DTOs;
+using BaseCRM.Entities;
 using BaseCRM.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -9,12 +10,12 @@ namespace BaseCRM.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class LoginController (UserManager<IdentityUser> userManager
-    , SignInManager<IdentityUser> signInManager
+public class LoginController (UserManager<ApplicationUser> userManager
+    , SignInManager<ApplicationUser> signInManager
     , JWTTokenService jwtTokenService): ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager = userManager;
-    private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
 
 
     [HttpPost]

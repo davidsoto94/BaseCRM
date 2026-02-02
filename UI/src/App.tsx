@@ -1,6 +1,9 @@
 import { Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { ThemeProvider } from './style/ThemeProvider'
 
@@ -11,14 +14,12 @@ function App() {
     <ThemeProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
       </Routes>
     </ThemeProvider>
   )

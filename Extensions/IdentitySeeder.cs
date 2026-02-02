@@ -11,7 +11,7 @@ public static class IdentitySeeder
         using (var scope = serviceProvider.CreateScope())
         {
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             var allEnums = Enum.GetValues(typeof(PermissionEnum)).Cast<PermissionEnum>().ToList();
 
@@ -32,7 +32,7 @@ public static class IdentitySeeder
             var userExist = await userManager.FindByEmailAsync(adminEmail);
             if (userExist == null)
             {
-                var adminUser = new IdentityUser
+                var adminUser = new ApplicationUser
                 {
                     UserName = "InitialAdmin",
                     Email = adminEmail,
@@ -42,11 +42,10 @@ public static class IdentitySeeder
 
                 // Create the admin user
                 var result = await userManager.CreateAsync(adminUser, adminPassword);
+                userExist = adminUser;
                 if (!result.Succeeded)
                 {
                     throw new Exception("Failed to create the admin user: " + string.Join(", ", result.Errors));
-                    
-                    
                 }
             }
             var userRoles = await userManager.GetRolesAsync(userExist!);

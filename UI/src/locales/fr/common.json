@@ -1,0 +1,83 @@
+{
+  "register_user": "Enregistrer un nouvel utilisateur",
+  "guest": "Invité",
+  "language": {
+    "aria_label": "Langue",
+    "en": "Anglais",
+    "es": "Espagnol",
+    "fr": "Français"
+  },
+  "login": {
+    "title": "Se connecter",
+    "email_label": "E-mail",
+    "email_placeholder": "vous@exemple.com",
+    "password_label": "Mot de passe",
+    "password_placeholder": "••••••••",
+    "error_generic": "Échec de la connexion",
+    "submit": "Se connecter",
+    "loading": "Connexion en cours…",
+    "forgot_password": "Mot de passe oublié ?"
+  },
+  "home": {
+    "title": "Bienvenue",
+    "subtitle": "Vous êtes connecté.",
+    "logout": "Se déconnecter"
+  },
+  "register": {
+    "title": "Créer un utilisateur",
+    "subtitle": "Complétez le formulaire pour ajouter un nouvel utilisateur.",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "first_name_placeholder": "Jeanne",
+    "last_name_placeholder": "Dupont",
+    "email": "E-mail",
+    "email_placeholder": "utilisateur@exemple.com",
+    "password": "Mot de passe",
+    "password_placeholder": "••••••••",
+    "roles_label": "Attribuer des rôles",
+    "roles_loading": "Chargement des rôles…",
+    "roles_error": "Impossible de charger les rôles.",
+    "no_roles": "Aucun rôle disponible.",
+    "submit": "Créer l'utilisateur",
+    "submitting": "Création de l'utilisateur…",
+    "success": "Utilisateur créé avec succès.",
+    "error_generic": "Impossible de créer l'utilisateur.",
+    "codes": {
+      "DuplicateEmail": "Un utilisateur avec cet e-mail existe déjà.",
+      "DuplicatedUsername": "Un utilisateur avec ce nom d'utilisateur existe déjà."
+    }
+  },
+  "forgot": {
+    "title": "Réinitialiser votre mot de passe",
+    "subtitle": "Saisissez l’e-mail associé à votre compte et nous vous enverrons les instructions.",
+    "email_label": "E-mail",
+    "email_placeholder": "vous@exemple.com",
+    "submit": "Envoyer le lien",
+    "submitting": "Envoi…",
+    "success": "Si cet e-mail existe, un lien de réinitialisation a été envoyé.",
+    "error_generic": "Impossible de traiter votre demande pour le moment.",
+    "back_to_login": "Retour à la connexion"
+  },
+  "reset": {
+    "title": "Définir un nouveau mot de passe",
+    "subtitle": "Choisissez un mot de passe robuste pour sécuriser votre compte.",
+    "new_password_label": "Nouveau mot de passe",
+    "new_password_placeholder": "••••••••",
+    "confirm_password_label": "Confirmer le mot de passe",
+    "confirm_password_placeholder": "Répétez votre nouveau mot de passe",
+    "submit": "Mettre à jour le mot de passe",
+    "submitting": "Mise à jour…",
+    "success": "Votre mot de passe a été réinitialisé.",
+    "error_generic": "Impossible de réinitialiser le mot de passe.",
+    "password_mismatch": "Les mots de passe ne correspondent pas.",
+    "missing_params": "Ce lien de réinitialisation est invalide ou incomplet.",
+    "back_to_forgot": "Demander un nouveau lien",
+    "back_to_login": "Retour à la connexion",
+    "codes": {
+      "PasswordTooShort": "Les mots de passe doivent contenir au moins 6 caractères.",
+      "PasswordRequiresNonAlphanumeric": "Les mots de passe doivent inclure au moins un caractère non alphanumérique.",
+      "PasswordRequiresDigit": "Les mots de passe doivent inclure au moins un chiffre (« 0 »-« 9 »).",
+      "PasswordRequiresUpper": "Les mots de passe doivent inclure au moins une lettre majuscule (« A »-« Z »)."
+    }
+  }
+}

@@ -1,4 +1,5 @@
 ﻿using BaseCRM.Configurations;
+using BaseCRM.Entities;
 using BaseCRM.Enums;
 using BaseCRM.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -12,11 +13,11 @@ using System.Text.Json;
 namespace BaseCRM.Services;
 
 public class JWTTokenService (
-    UserManager<IdentityUser> userManager,
+    UserManager<ApplicationUser> userManager,
     RoleRepository roleRepository
     )
 {
-    public async Task<string> GenerateJwtToken(IdentityUser user)
+    public async Task<string> GenerateJwtToken(ApplicationUser user)
     {
         var roles = await userManager.GetRolesAsync(user);
         var allPermissions = (await roleRepository.GetApplicationRoles()
@@ -34,7 +35,7 @@ public class JWTTokenService (
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim("Permissions",JsonSerializer.Serialize(allPermissions))
+            new Claim("permissions",JsonSerializer.Serialize(allPermissions))
         };
 
         var randomKey = Guid.NewGuid().ToString();

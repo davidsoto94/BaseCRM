@@ -11,7 +11,7 @@ type ThemeProviderProps = {
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "dark",
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
@@ -20,8 +20,8 @@ export function ThemeProvider({
   );
 
   useEffect(() => {
+    localStorage.setItem(storageKey, theme);
     const root = window.document.documentElement;
-
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
@@ -33,9 +33,8 @@ export function ThemeProvider({
       root.classList.add(systemTheme);
       return;
     }
-
     root.classList.add(theme);
-  }, [theme]);
+  }, [theme, storageKey]);
 
   const value = {
     theme,

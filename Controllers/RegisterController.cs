@@ -1,30 +1,47 @@
-﻿using BaseCRM.Entities;
+﻿using BaseCRM.DTOs;
+using BaseCRM.Entities;
+using BaseCRM.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-
 namespace BaseCRM.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 public class RegisterController(
-    UserManager<IdentityUser> userManager,
-    SignInManager<IdentityUser> signInManager,
+    UserManager<ApplicationUser> userManager,
     RoleManager<ApplicationRole> roleManager,
-    IConfiguration configuration) : ControllerBase
+    AccountService accountService) : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager = userManager;
-    private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
-    private readonly IConfiguration _configuration = configuration;
 
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> Get()
     {
         var user = await _userManager.GetUserAsync(User);
-        var getAllRoles = _roleManager.Roles;
-        return Ok();
+        if(user is null)
+        {
+            return Unauthorized();
+        }
+        var userRoles = user is null ? [] : (await _userManager.GetRolesAsync(user)).ToList();
+        if (userRoles.Contains("Admin"))
+        {
+            userRoles = [.. _roleManager.Roles.Where(w => w.Name != null).Select(s => s.Name!)];
+        }
+        return Ok(userRoles);
+    }
+    [HttpPost]
+    public async Task<IActionResult> Post(RegisterDTO model)
+    {
+        var result = await accountService.RegisterNewUser(model);
+        if (result.Success)
+        {
+            return Ok();
+        }
+        return BadRequest(new { errors = result.Errors });
     }
 
 

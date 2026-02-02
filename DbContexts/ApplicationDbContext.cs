@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BaseCRM.DbContexts;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser, ApplicationRole, string>(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, ApplicationRole, string>(options)
 {
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -29,7 +29,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<IdentityUser>().ToTable("asp_net_users");
+        modelBuilder.Entity<ApplicationUser>().ToTable("asp_net_users");
         modelBuilder.Entity<IdentityUserToken<string>>().ToTable("asp_net_user_tokens");
         modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("asp_net_user_logins");
         modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("asp_net_user_claims");

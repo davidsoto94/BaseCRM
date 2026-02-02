@@ -6,6 +6,7 @@ using BaseCRM.Repositories;
 using BaseCRM.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -18,7 +19,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 
 builder.Services.AddDataProtection();
 
-builder.Services.AddIdentity<IdentityUser, ApplicationRole>(options => options.SignIn.RequireConfirmedAccount = true)
+
+
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = true;
+        options.User.RequireUniqueEmail = true;
+    }
+    )
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddAuthentication(options =>
@@ -28,6 +36,7 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(options =>
 {
     var randomKey = Guid.NewGuid().ToString();
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -41,15 +50,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
+builder.Services.AddSingleton<IEmailSender, EmailService>();
 builder.Services.AddScoped<RoleRepository>();
 builder.Services.AddScoped<JWTTokenService>();
+builder.Services.AddScoped<AccountService>();
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(Environment.GetEnvironmentVariable(Constants.FrontEndApplicationUrl) ?? "", Environment.GetEnvironmentVariable(Constants.ApplicationUrl) ?? "")
+        policy.WithOrigins(Environment.GetEnvironmentVariable(Constants.ClientUrl) ?? "", Environment.GetEnvironmentVariable(Constants.ApplicationUrl) ?? "")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

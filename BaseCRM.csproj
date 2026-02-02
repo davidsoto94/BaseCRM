@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -28,5 +28,8 @@
     <Folder Include="Migrations\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
+    <ItemGroup>
+	    <Content Include="Views/EmailTemplates/*.html" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
 
 </Project>

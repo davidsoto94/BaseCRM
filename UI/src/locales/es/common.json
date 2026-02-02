@@ -1,0 +1,83 @@
+{
+  "register_user": "Registrar nuevo usuario",
+  "guest": "Invitado",
+  "language": {
+    "aria_label": "Idioma",
+    "en": "Inglés",
+    "es": "Español",
+    "fr": "Francés"
+  },
+  "login": {
+    "title": "Iniciar sesión",
+    "email_label": "Correo electrónico",
+    "email_placeholder": "tu@ejemplo.com",
+    "password_label": "Contraseña",
+    "password_placeholder": "••••••••",
+    "error_generic": "Error al iniciar sesión",
+    "submit": "Iniciar sesión",
+    "loading": "Iniciando sesión…",
+    "forgot_password": "¿Olvidaste tu contraseña?"
+  },
+  "home": {
+    "title": "Bienvenido",
+    "subtitle": "Has iniciado sesión.",
+    "logout": "Cerrar sesión"
+  },
+  "register": {
+    "title": "Crear usuario",
+    "subtitle": "Completa el formulario para agregar un nuevo usuario.",
+    "first_name": "Nombre",
+    "last_name": "Apellido",
+    "first_name_placeholder": "Juana",
+    "last_name_placeholder": "Pérez",
+    "email": "Correo electrónico",
+    "email_placeholder": "usuario@ejemplo.com",
+    "password": "Contraseña",
+    "password_placeholder": "••••••••",
+    "roles_label": "Asignar roles",
+    "roles_loading": "Cargando roles…",
+    "roles_error": "No se pudieron cargar los roles.",
+    "no_roles": "No hay roles disponibles.",
+    "submit": "Crear usuario",
+    "submitting": "Creando usuario…",
+    "success": "Usuario creado correctamente.",
+    "error_generic": "No se pudo crear el usuario.",
+    "codes": {
+      "DuplicateEmail": "Ya existe un usuario con este correo electrónico.",
+      "DuplicatedUsername": "Ya existe un usuario con este nombre de usuario."
+    }
+  },
+  "forgot": {
+    "title": "Restablecer contraseña",
+    "subtitle": "Ingresa el correo asociado a tu cuenta y te enviaremos instrucciones.",
+    "email_label": "Correo electrónico",
+    "email_placeholder": "tu@ejemplo.com",
+    "submit": "Enviar enlace",
+    "submitting": "Enviando…",
+    "success": "Si el correo existe, se ha enviado un enlace de restablecimiento.",
+    "error_generic": "No se pudo procesar la solicitud.",
+    "back_to_login": "Volver a iniciar sesión"
+  },
+  "reset": {
+    "title": "Establecer una nueva contraseña",
+    "subtitle": "Elige una contraseña segura para proteger tu cuenta.",
+    "new_password_label": "Nueva contraseña",
+    "new_password_placeholder": "••••••••",
+    "confirm_password_label": "Confirmar contraseña",
+    "confirm_password_placeholder": "Repite tu nueva contraseña",
+    "submit": "Actualizar contraseña",
+    "submitting": "Actualizando…",
+    "success": "Tu contraseña ha sido restablecida.",
+    "error_generic": "No se pudo restablecer la contraseña.",
+    "password_mismatch": "Las contraseñas no coinciden.",
+    "missing_params": "Este enlace de restablecimiento es inválido o incompleto.",
+    "back_to_forgot": "Solicitar un nuevo enlace",
+    "back_to_login": "Volver a iniciar sesión",
+    "codes": {
+      "PasswordTooShort": "Las contraseñas deben tener al menos 6 caracteres.",
+      "PasswordRequiresNonAlphanumeric": "Las contraseñas deben incluir al menos un carácter no alfanumérico.",
+      "PasswordRequiresDigit": "Las contraseñas deben incluir al menos un dígito ('0'-'9').",
+      "PasswordRequiresUpper": "Las contraseñas deben incluir al menos una letra mayúscula ('A'-'Z')."
+    }
+  }
+}
