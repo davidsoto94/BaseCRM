@@ -1,8 +1,11 @@
 ﻿using BaseCRM.Configurations;
 using BaseCRM.DTOs;
 using BaseCRM.Entities;
+using BaseCRM.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Web;
 
 namespace BaseCRM.Services;
@@ -60,11 +63,9 @@ public class AccountService (
         return (true,null);
     }
 
-    public async Task<(bool Success, IEnumerable<IdentityError>? Errors)> RegisterNewUser(RegisterDTO newUser)
+    public async Task<(bool Success, IEnumerable<IdentityError>? Errors)> RegisterNewUser(RegisterDTO newUser, ApplicationUser requestUser)
     {
-
         var user = await _userManager.FindByEmailAsync(newUser.Email);
-
         if(user is not null && !user.EmailConfirmed)
         {
             await SendConfirmationEmail(user);
@@ -75,9 +76,7 @@ public class AccountService (
             Name = newUser.Name,
             LastName = newUser.LastName,
             Email = newUser.Email,
-        };
-
-        
+        };        
 
         var result = await _userManager.CreateAsync(user);
         if (!result.Succeeded)
@@ -85,6 +84,7 @@ public class AccountService (
             return (false, result.Errors);
         }
 
+        newUser.roles = await RolesToBeAdded(newUser.roles, requestUser);
         var currentRoles = _roleManager.Roles.Where(w => newUser.roles.Contains(w.Name!)).Select(s => s.Name!).ToList();
         foreach (var role in currentRoles)
         {
@@ -92,8 +92,69 @@ public class AccountService (
         }
 
         await SendConfirmationEmail(user);
-
         return (true, null);
+    }
+
+    private async Task<List<string>> RolesToBeAdded(List<string> rolesAttempted, ApplicationUser requestUser)
+    {
+        var userRoles = (await _userManager.GetRolesAsync(requestUser)).ToList();
+        return rolesAttempted.Where(w => userRoles.Contains(w)).ToList();
+    }
+
+    public async Task<bool> ConfirmEmail(string userId, string token)
+    {
+        if (userId == null || token == null) return false;
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return false;
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        if (result.Succeeded)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public async Task<bool> IsAuthorizedToAddNewUser(ApplicationUser? requestUser)
+    {
+        if (requestUser is null)
+        {
+            return false;
+        }
+
+        var permitions = await UserPermitions(requestUser);
+        if (permitions.Contains(PermissionEnum.AddUser))
+        {
+            return true;
+        }
+        return false;
+    }
+    public async Task<bool> IsAuthorizedToViewUsers(ApplicationUser? requestUser)
+    {
+        if (requestUser is null)
+        {
+            return false;
+        }
+
+        var permitions = await UserPermitions(requestUser);
+        if (permitions.Contains(PermissionEnum.ViewUser))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private async Task<List<PermissionEnum>> UserPermitions(ApplicationUser requestUser)
+    {
+        var userRoles = (await _userManager.GetRolesAsync(requestUser)).ToList();
+        return (await _roleManager.Roles
+            .Where(w => w.Name != null && userRoles.Contains(w.Name))
+            .Select(s => s.Permitions)
+            .ToListAsync())
+            .SelectMany(s => s)
+            .ToList();
     }
 
     private async Task SendConfirmationEmail(ApplicationUser user)

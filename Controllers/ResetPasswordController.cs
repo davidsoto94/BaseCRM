@@ -7,7 +7,7 @@ namespace BaseCRM.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class ResetPassword (AccountService accountService) : ControllerBase
+public class ResetPasswordController (AccountService accountService) : ControllerBase
 {
 
     [HttpPost]

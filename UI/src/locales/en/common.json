@@ -73,5 +73,16 @@
     "missing_params": "This reset link is invalid or incomplete.",
     "back_to_forgot": "Request a new reset link",
     "back_to_login": "Back to sign in"
+  },
+  "confirm": {
+    "title": "Confirm your email",
+    "subtitle_pending": "We are verifying your email address.",
+    "subtitle_success": "Your email address is confirmed.",
+    "processing": "Confirming your email…",
+    "success": "Thanks! Your email has been confirmed.",
+    "error_generic": "We could not confirm your email. Try again later.",
+    "missing_params": "This confirmation link is invalid or incomplete.",
+    "retry": "Try again",
+    "back_to_login": "Back to sign in"
   }
 }

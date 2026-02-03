@@ -22,7 +22,8 @@ public class RegisterController(
     public async Task<IActionResult> Get()
     {
         var user = await _userManager.GetUserAsync(User);
-        if(user is null)
+        var isAuthorizedToAdd = accountService.IsAuthorizedToAddNewUser(user).Result;
+        if (!isAuthorizedToAdd)
         {
             return Unauthorized();
         }
@@ -34,9 +35,16 @@ public class RegisterController(
         return Ok(userRoles);
     }
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Post(RegisterDTO model)
     {
-        var result = await accountService.RegisterNewUser(model);
+        var user = await _userManager.GetUserAsync(User);
+        var isAuthorizedToAdd = accountService.IsAuthorizedToAddNewUser(user).Result;
+        if (!isAuthorizedToAdd)
+        {
+            return Unauthorized();
+        }
+        var result = await accountService.RegisterNewUser(model, user!);
         if (result.Success)
         {
             return Ok();

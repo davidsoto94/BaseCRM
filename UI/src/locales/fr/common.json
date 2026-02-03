@@ -79,5 +79,16 @@
       "PasswordRequiresDigit": "Les mots de passe doivent inclure au moins un chiffre (« 0 »-« 9 »).",
       "PasswordRequiresUpper": "Les mots de passe doivent inclure au moins une lettre majuscule (« A »-« Z »)."
     }
+  },
+  "confirm": {
+    "title": "Confirmez votre e-mail",
+    "subtitle_pending": "Nous vérifions votre adresse e-mail.",
+    "subtitle_success": "Votre adresse e-mail est confirmée.",
+    "processing": "Confirmation de votre e-mail…",
+    "success": "Merci ! Votre e-mail a été confirmé.",
+    "error_generic": "Nous n'avons pas pu confirmer votre e-mail. Réessayez plus tard.",
+    "missing_params": "Ce lien de confirmation est invalide ou incomplet.",
+    "retry": "Réessayer",
+    "back_to_login": "Retour à la connexion"
   }
 }

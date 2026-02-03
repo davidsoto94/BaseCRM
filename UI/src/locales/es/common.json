@@ -79,5 +79,16 @@
       "PasswordRequiresDigit": "Las contraseñas deben incluir al menos un dígito ('0'-'9').",
       "PasswordRequiresUpper": "Las contraseñas deben incluir al menos una letra mayúscula ('A'-'Z')."
     }
+  },
+  "confirm": {
+    "title": "Confirma tu correo",
+    "subtitle_pending": "Estamos verificando tu correo electrónico.",
+    "subtitle_success": "Tu correo electrónico ha sido confirmado.",
+    "processing": "Confirmando tu correo…",
+    "success": "¡Gracias! Tu correo se ha confirmado.",
+    "error_generic": "No pudimos confirmar tu correo. Inténtalo más tarde.",
+    "missing_params": "Este enlace de confirmación es inválido o incompleto.",
+    "retry": "Intentar de nuevo",
+    "back_to_login": "Volver a iniciar sesión"
   }
 }
