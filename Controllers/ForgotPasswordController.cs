@@ -1,9 +1,11 @@
 ﻿using BaseCRM.Configurations;
+using BaseCRM.Localization;
 using BaseCRM.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Web;
 
 namespace BaseCRM.Controllers;
@@ -11,9 +13,12 @@ namespace BaseCRM.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 public class ForgotPasswordController (
-    AccountService accountService
+    AccountService accountService,
+    IStringLocalizer<IdentityErrorMessages> localizer
     ) : ControllerBase
 {
+
+    private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] ForgotPasswordRequest model)
@@ -21,9 +26,9 @@ public class ForgotPasswordController (
         var result = await accountService.ForgotPassword(model.Email);
         if (result.Success)
         {
-            return Ok(new { Status = "Success", Message = "If an account with that email exists, a password reset link has been sent." });
+            return Ok(_localizer["SuccessfulForgotPassword"].Value);
         }
-        return BadRequest(new { Errors = result.Errors });
+        return BadRequest(result.Errors);
 
     }
 

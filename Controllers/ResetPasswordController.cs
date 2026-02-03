@@ -1,14 +1,19 @@
-﻿using BaseCRM.Services;
-using Microsoft.AspNetCore.Identity;
+﻿using BaseCRM.Localization;
+using BaseCRM.Services;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace BaseCRM.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class ResetPasswordController (AccountService accountService) : ControllerBase
+public class ResetPasswordController (AccountService accountService
+    , IStringLocalizer<IdentityErrorMessages> localizer) : ControllerBase
 {
+
+    
+    private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
     [HttpPost]
     public async Task<IActionResult> PostAsync([FromBody] ResetPasswordRequest model)
@@ -21,10 +26,10 @@ public class ResetPasswordController (AccountService accountService) : Controlle
         var (success, errors) = await accountService.ResetPasswordAsync(model.Email, model.ResetCode, model.NewPassword);
 
         if (success) {
-            return Ok(new { Message = "Password has been reset successfully." });
+            return Ok(_localizer["SuccessfullPasswordReset"]);
         }
 
-        return BadRequest(new { Errors = errors });
+        return BadRequest(errors);
 
     }
 }

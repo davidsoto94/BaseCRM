@@ -2,9 +2,11 @@
 using BaseCRM.DTOs;
 using BaseCRM.Entities;
 using BaseCRM.Enums;
+using BaseCRM.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using System.Web;
 
@@ -13,13 +15,20 @@ namespace BaseCRM.Services;
 public class AccountService (
     UserManager<ApplicationUser> userManager,
     RoleManager<ApplicationRole> roleManager,
-    IEmailSender emailSender)
+    IEmailSender emailSender,
+    EmailTemplateService emailTemplateService,
+    IdentityErrorLocalizerService identityErrorLocalizer,
+    IStringLocalizer<EmailTemplates> emailLocalizer)
 {
 
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
+    private readonly EmailTemplateService _emailTemplateService = emailTemplateService;
+    private readonly IdentityErrorLocalizerService _identityErrorLocalizer = identityErrorLocalizer;
+    private readonly IStringLocalizer<EmailTemplates> _emailLocalizer = emailLocalizer;
 
-    public async Task<(bool Success, IEnumerable<IdentityError>? Errors)> ResetPasswordAsync(string email, string resetCode, string newPassword)
+
+    public async Task<(bool Success, IEnumerable<string>? Errors)> ResetPasswordAsync(string email, string resetCode, string newPassword)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
@@ -37,7 +46,8 @@ public class AccountService (
 
             return (true, null);
         }
-        return (false, result.Errors);
+        var localizedErrors = _identityErrorLocalizer.LocalizeErrors(result.Errors ?? []);
+        return (false, localizedErrors);
     }
 
     public async Task<(bool Success, IEnumerable<string>? Errors)> ForgotPassword(string email)
@@ -45,25 +55,24 @@ public class AccountService (
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
         {
-            return (true,null);
+            return (true, null);
         }
+
         // Generate a password reset token
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var urlEncodedToken = HttpUtility.UrlEncode(token);
         var resetPasswordUrl = $"{Environment.GetEnvironmentVariable(Constants.ClientUrl)}/reset-password?email={email}&token={urlEncodedToken}";
 
-        // Load and populate the HTML email template
-        var emailTemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Views/EmailTemplates/ResetPasswordEmail.html");
-        var emailBody = await File.ReadAllTextAsync(emailTemplatePath);
-        emailBody = emailBody.Replace("{RESET_PASSWORD_URL}", resetPasswordUrl);
-        emailBody = emailBody.Replace("{CURRENT_YEAR}", DateTime.Now.Year.ToString());
+        // Get localized email body
+        var emailBody = await _emailTemplateService.GetResetPasswordEmailHtmlAsync(resetPasswordUrl, DateTime.Now.Year);
+        var emailSubject = _emailLocalizer["EmailSubjectResetPassword"].Value;
 
-        // Send the email with the styled HTML
-        await emailSender.SendEmailAsync(email, "Reset Your Password", emailBody);
-        return (true,null);
+        // Send the email with localized content
+        await emailSender.SendEmailAsync(email, emailSubject, emailBody);
+        return (true, null);
     }
 
-    public async Task<(bool Success, IEnumerable<IdentityError>? Errors)> RegisterNewUser(RegisterDTO newUser, ApplicationUser requestUser)
+    public async Task<(bool Success, IEnumerable<string>? Errors)> RegisterNewUser(RegisterDTO newUser, ApplicationUser requestUser)
     {
         var user = await _userManager.FindByEmailAsync(newUser.Email);
         if(user is not null && !user.EmailConfirmed)
@@ -73,6 +82,7 @@ public class AccountService (
 
         user = new ApplicationUser
         {
+            UserName = newUser.Email,
             Name = newUser.Name,
             LastName = newUser.LastName,
             Email = newUser.Email,
@@ -81,7 +91,8 @@ public class AccountService (
         var result = await _userManager.CreateAsync(user);
         if (!result.Succeeded)
         {
-            return (false, result.Errors);
+            var localizedErrors = _identityErrorLocalizer.LocalizeErrors(result.Errors ?? []);
+            return (false, localizedErrors);
         }
 
         newUser.roles = await RolesToBeAdded(newUser.roles, requestUser);
@@ -163,14 +174,11 @@ public class AccountService (
         var urlEncodedCode = HttpUtility.UrlEncode(code);
         var confirmationUrl = $"{Environment.GetEnvironmentVariable(Constants.ClientUrl)}/confirm-email?userId={user.Id}&code={urlEncodedCode}";
 
-        // Load and populate the HTML email template
-        var emailTemplatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Views/EmailTemplates/ConfirmEmailTemplate.html");
-        var emailBody = await File.ReadAllTextAsync(emailTemplatePath);
-        emailBody = emailBody.Replace("{USER_NAME}", user.Name);
-        emailBody = emailBody.Replace("{CONFIRMATION_URL}", confirmationUrl);
-        emailBody = emailBody.Replace("{CURRENT_YEAR}", DateTime.Now.Year.ToString());
+        // Get localized email body
+        var emailBody = await _emailTemplateService.GetConfirmationEmailHtmlAsync(user.Name ?? "User", confirmationUrl, DateTime.Now.Year);
+        var emailSubject = _emailLocalizer["EmailSubjectConfirmEmail"].Value;
 
         // Send the confirmation email
-        await emailSender.SendEmailAsync(user.Email!, "Confirm Your Email Address", emailBody);
+        await emailSender.SendEmailAsync(user.Email!, emailSubject, emailBody);
     }
 }

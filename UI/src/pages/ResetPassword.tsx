@@ -4,6 +4,7 @@ import { ThemeToggle } from "../components/ToggleComponent";
 import LangSelector from "../components/LangSelector";
 import { useI18n } from "../i18n/I18nProvider";
 import { apiBase } from "../services/auth";
+import { fecthWithLanguage } from "../Utilities/fetchWithLanguage";
 
 export default function ResetPassword() {
   const { t } = useI18n();
@@ -32,8 +33,6 @@ export default function ResetPassword() {
     PasswordRequiresUpper: t("reset.codes.PasswordRequiresUpper"),
   };
 
-  const isPasswordRequirementCode = (value: string): value is PasswordRequirementCode =>
-    value in passwordRequirementMessages;
 
   const passwordRequirementChecks: Array<{ code: PasswordRequirementCode; valid: boolean }> = [
     { code: "PasswordTooShort", valid: password.length >= 6 },
@@ -68,7 +67,7 @@ export default function ResetPassword() {
     setSuccess(false);
     setLoading(true);
     try {
-      const response = await fetch(`${apiBase}/api/v1/resetpassword`, {
+      const response = await fecthWithLanguage(`${apiBase}/api/v1/resetpassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resetCode: token, email, newPassword: password }),
@@ -81,21 +80,10 @@ export default function ResetPassword() {
           const messages: string[] = [];
           if (typeof data?.message === "string") messages.push(data.message);
           if (Array.isArray(data?.errors)) {
-            const parsed = (data.errors as unknown[])
-              .map((item) => {
-                if (typeof item === "string") return item.trim();
-                if (item && typeof item === "object") {
-                  const { code, description } = item as { code?: unknown; description?: unknown };
-                  if (typeof code === "string" && isPasswordRequirementCode(code)) {
-                    return passwordRequirementMessages[code];
-                  }
-                  if (typeof description === "string") return description.trim();
-                  if (typeof code === "string") return code.trim();
-                }
-                return null;
-              })
-              .filter((msg): msg is string => Boolean(msg));
-            if (parsed.length) messages.push(...parsed);
+            console.log(data.errors);
+            messages.push(
+              ...data.errors.filter((item: unknown): item is string => typeof item === "string")
+            );
           }
           if (messages.length) errorMessage = messages.join("\n");
         } catch {

@@ -9,19 +9,28 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<string []| null>(null)
   const navigate = useNavigate()
   const { t } = useI18n()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError(null)
+    setErrors(null)
     setLoading(true)
     try {
       await auth.login({ email, password })
       navigate('/', { replace: true })
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('login.error_generic'))
+      if (err instanceof Error) {
+        const errors = JSON.parse(err.message)
+        if (Array.isArray(errors)) {
+          setErrors(errors.map(String))
+        }else {
+          setErrors([t('login.error_generic')])
+        }
+      } else {
+        setErrors([t('login.error_generic')])
+      }
     } finally {
       setLoading(false)
     }
@@ -71,9 +80,13 @@ export default function Login() {
               </div>
             </div>
 
-            {error && (
+            {errors && (
               <div className="text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-md px-3 py-2 mb-5 text-sm">
-                {error === 'Login failed' ? t('login.error_generic') : error}
+                {errors.map((errorMessage, index) => (
+                  <p key={index}>
+                    {errorMessage === 'Login failed' ? t('login.error_generic') : errorMessage}
+                  </p>
+                ))}
               </div>
             )}
             <div className="mb-5 flex justify-end">

@@ -15,7 +15,9 @@ export const apiBase = import.meta.env.VITE_API_BASE_URL || ''
 export async function login(payload: LoginRequest) {
   const res = await fetch(`${apiBase}/api/v1/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json',
+      'Accept-Language' : localStorage.getItem('lang') || 'en'
+     },
     body: JSON.stringify(payload),
   })
 
@@ -31,7 +33,7 @@ export async function login(payload: LoginRequest) {
 }
 
 export function logout() {
-  localStorage.removeItem(TOKEN_KEY)
+  sessionStorage.removeItem(TOKEN_KEY)
 }
 
 export function getToken(): string | null {
@@ -45,6 +47,7 @@ export function isAuthenticated(): boolean {
 export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}) {
   const token = getToken()
   const headers = new Headers(init.headers ?? undefined)
+  headers.set("Content-Language", localStorage.getItem('lang') || 'en')
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`)
   }

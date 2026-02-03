@@ -21,44 +21,6 @@ export default function Register() {
   const [submitErrors, setSubmitErrors] = useState<string[] | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  type RegisterErrorCode = "DuplicateEmail";
-
-  const registerErrorMessages: Record<RegisterErrorCode, string> = {
-    DuplicateEmail: t("register.codes.DuplicateEmail"),
-  };
-
-  const isRegisterErrorCode = (value: string): value is RegisterErrorCode => value in registerErrorMessages;
-
-  const parseRegisterErrors = (payload: unknown): string[] => {
-    const messages: string[] = [];
-    if (!payload || typeof payload !== "object") return messages;
-    const { message, errors } = payload as { message?: unknown; errors?: unknown };
-    if (typeof message === "string") messages.push(message.trim());
-    if (Array.isArray(errors)) {
-      errors.forEach((item) => {
-        if (typeof item === "string") {
-          messages.push(item.trim());
-          return;
-        }
-        if (item && typeof item === "object") {
-          const { code, description } = item as { code?: unknown; description?: unknown };
-          if (typeof code === "string" && isRegisterErrorCode(code)) {
-            messages.push(registerErrorMessages[code]);
-            return;
-          }
-          if (typeof description === "string") {
-            messages.push(description.trim());
-            return;
-          }
-          if (typeof code === "string") {
-            messages.push(code.trim());
-          }
-        }
-      });
-    }
-    return messages.filter(Boolean);
-  };
-
   useEffect(() => {
     if (hasFetchedRoles.current) return;
     hasFetchedRoles.current = true;
@@ -84,7 +46,7 @@ export default function Register() {
     }
 
     fetchRoles();
-  }, [roles]);
+  }, []);
 
   function toggleRole(roleId: string) {
     setSelectedRoles((current) =>
@@ -123,7 +85,7 @@ export default function Register() {
         data = null;
       }
       if (!response.ok) {
-        const parsed = parseRegisterErrors(data);
+        const parsed = Array.isArray(data) ? data : [];
         setSubmitErrors(parsed.length ? parsed : [t("register.error_generic")]);
         return;
       }
@@ -132,7 +94,6 @@ export default function Register() {
       setSelectedRoles([]);
     } catch (error) {
         const fallback = t("register.error_generic");
-        console.log(error);
         if (error instanceof Error) {
             setSubmitErrors([error.message || fallback]);
         } else {

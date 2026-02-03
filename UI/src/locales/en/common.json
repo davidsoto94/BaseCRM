@@ -41,11 +41,7 @@
     "submit": "Create user",
     "submitting": "Creating user…",
     "success": "User created successfully.",
-    "error_generic": "Could not create the user.",
-    "codes": {
-      "DuplicateEmail": "A user with that email already exists.",
-      "DuplicatedUsername": "A user with that username already exists."
-    }
+    "error_generic": "Could not create the user."
   },
   "forgot": {
     "title": "Reset your password",

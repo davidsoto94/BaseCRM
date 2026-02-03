@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Microsoft does not allow creating or editing .resx files -->
+  <!-- via the web interface, so this file should only be edited with Visual Studio -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="5" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Email Subject Lines -->
+  <data name="EmailSubjectConfirmEmail" xml:space="preserve">
+    <value>Confirmar Su Dirección de Correo Electrónico</value>
+  </data>
+  <data name="EmailSubjectResetPassword" xml:space="preserve">
+    <value>Restablecer Su Contraseña</value>
+  </data>
+  <!-- Email Content - Confirm Email -->
+  <data name="EmailGreeting" xml:space="preserve">
+    <value>Hola {0},</value>
+  </data>
+  <data name="EmailConfirmEmailWelcome" xml:space="preserve">
+    <value>¡Bienvenido a BaseCRM! Para completar su registro y activar su cuenta, por favor confirme su dirección de correo electrónico haciendo clic en el botón de abajo.</value>
+  </data>
+  <data name="EmailConfirmButton" xml:space="preserve">
+    <value>Confirmar Correo Electrónico</value>
+  </data>
+  <data name="EmailResetPasswordButton" xml:space="preserve">
+    <value>Restablecer Contraseña</value>
+  </data>
+  <data name="EmailCopyLink" xml:space="preserve">
+    <value>O copie y pegue este enlace en su navegador:</value>
+  </data>
+  <data name="EmailConfirmEmailWarning" xml:space="preserve">
+    <value>Si no creó esta cuenta, por favor ignore este correo electrónico. Su cuenta no se activará hasta que confirme su dirección de correo electrónico.</value>
+  </data>
+  <!-- Email Content - Reset Password -->
+  <data name="EmailResetPasswordMessage" xml:space="preserve">
+    <value>Recibimos una solicitud para restablecer su contraseña. Haga clic en el botón de abajo para crear una nueva contraseña. Este enlace caducará en 24 horas.</value>
+  </data>
+  <data name="EmailResetPasswordWarning" xml:space="preserve">
+    <value>Si no solicitó un restablecimiento de contraseña, por favor ignore este correo electrónico. Su cuenta permanece segura.</value>
+  </data>
+  <!-- Email Footer -->
+  <data name="EmailFooterCopyright" xml:space="preserve">
+    <value>© {0} BaseCRM. Todos los derechos reservados.</value>
+  </data>
+  <data name="EmailFooterDisclaimer" xml:space="preserve">
+    <value>Este es un correo electrónico automatizado, por favor no responda.</value>
+  </data>
+</root>

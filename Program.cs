@@ -7,6 +7,7 @@ using BaseCRM.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -54,6 +55,33 @@ builder.Services.AddSingleton<IEmailSender, EmailService>();
 builder.Services.AddScoped<RoleRepository>();
 builder.Services.AddScoped<JWTTokenService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<IdentityErrorLocalizerService>();
+builder.Services.AddScoped<EmailTemplateService>();
+
+// Add localization services
+builder.Services.AddLocalization(options => 
+{
+    options.ResourcesPath = "Resources";
+});
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "en", "es", "fr" };
+    options.SetDefaultCulture("en");
+    options.AddSupportedCultures(supportedCultures);
+    options.AddSupportedUICultures(supportedCultures);
+});
+
+builder.Services.AddRequestLocalization(options =>
+{
+    var supportedCultures = new[] { "en", "es", "fr" };
+    options.AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures)
+        .SetDefaultCulture("en");
+});
+
+// Configure logging to suppress localization debug messages
+builder.Logging.AddFilter("Microsoft.Extensions.Localization.ResourceManagerStringLocalizer", LogLevel.Warning);
 
 builder.Services.AddCors(options =>
 {
@@ -87,6 +115,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseRequestLocalization();
 app.UseCors();
 app.UseHttpsRedirection();
 

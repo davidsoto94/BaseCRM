@@ -41,11 +41,7 @@
     "submit": "Créer l'utilisateur",
     "submitting": "Création de l'utilisateur…",
     "success": "Utilisateur créé avec succès.",
-    "error_generic": "Impossible de créer l'utilisateur.",
-    "codes": {
-      "DuplicateEmail": "Un utilisateur avec cet e-mail existe déjà.",
-      "DuplicatedUsername": "Un utilisateur avec ce nom d'utilisateur existe déjà."
-    }
+    "error_generic": "Impossible de créer l'utilisateur."
   },
   "forgot": {
     "title": "Réinitialiser votre mot de passe",

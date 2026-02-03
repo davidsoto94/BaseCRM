@@ -1,18 +1,21 @@
 ﻿using BaseCRM.Entities;
+using BaseCRM.Localization;
 using BaseCRM.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace BaseCRM.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 public class UsersController (AccountService accountService,
-    UserManager<ApplicationUser> userManager) : ControllerBase
+    UserManager<ApplicationUser> userManager,
+    IStringLocalizer<IdentityErrorMessages> localizer) : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
     /// <summary>
     /// Get a list of all users
@@ -26,13 +29,9 @@ public class UsersController (AccountService accountService,
         var isAuthorizedToViewUsers = await accountService.IsAuthorizedToViewUsers(user);
         if (!isAuthorizedToViewUsers)
         {
-            return Unauthorized();
+            return Unauthorized(_localizer["UnauthorizedAccess"].Value);
         }
-        var users = 
-
-        return Ok();
-
         // Placeholder for getting users logic
-        return Ok(new { Message = "Get users endpoint" });
+        return Ok("Get users endpoint");
     }
 }

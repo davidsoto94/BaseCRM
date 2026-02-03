@@ -5,6 +5,6 @@ namespace BaseCRM.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class DeactivateUser : ControllerBase
+public class DeactivateUserController : ControllerBase
 {
 }
