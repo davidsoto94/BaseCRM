@@ -14,10 +14,12 @@ namespace BaseCRM.Controllers;
 public class LoginController (UserManager<ApplicationUser> userManager
     , SignInManager<ApplicationUser> signInManager
     , JWTTokenService jwtTokenService
+    , DeviceTrustService deviceTrustService
     , IStringLocalizer<IdentityErrorMessages> localizer): ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
+    private readonly DeviceTrustService _deviceTrustService = deviceTrustService;
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
 
@@ -33,21 +35,37 @@ public class LoginController (UserManager<ApplicationUser> userManager
             user, loginDTO.Password, lockoutOnFailure: true);
         if (result.Succeeded)
         {
-            var accessToken = await jwtTokenService.GenerateJwtToken(user);
-            var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-            var refreshToken = jwtTokenService.GenerateRefreshToken(ipAddress);
-            user.RefreshTokens.Add(refreshToken);
-            await _userManager.UpdateAsync(user);
+            var isTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+            var deviceFingerprint = _deviceTrustService.GenerateDeviceFingerprint();
+            var isDeviceTrusted = await _deviceTrustService.IsDeviceTrusted(user, deviceFingerprint);
 
-            Response.Cookies.Append("refreshToken", refreshToken.Token, new CookieOptions
+            // RequireSetupMfa: true = user must SET UP MFA (doesn't have it yet)
+            // MfaRequired: true = user has MFA enabled AND device is not trusted
+            var mfaRequired = isTwoFactorEnabled && !isDeviceTrusted;
+
+            string? accessToken = null;
+            string? tempToken = null;
+
+            if (mfaRequired || !isTwoFactorEnabled)
             {
-                HttpOnly = true,
-                //Secure = true,
-                SameSite = SameSiteMode.Lax,
-                Expires = refreshToken.Expires
-            });
+                // Generate scoped token for MFA verification only
+                tempToken = await jwtTokenService.GenerateJwtToken(user, scope: "mfa_verification");
+            }
+            else
+            {
+                // Generate full access token
+                accessToken = await jwtTokenService.GenerateJwtToken(user);
+            }
 
-            return Ok(new { accessToken });
+            var response = new LoginResponse
+            {
+                AccessToken = accessToken,
+                TempToken = tempToken,
+                RequireSetupMfa = !isTwoFactorEnabled,
+                MfaRequired = mfaRequired
+            };
+
+            return Ok(response);
         }
         return BadRequest(new[] { _localizer["InvalidCredentials"].Value } );
     }

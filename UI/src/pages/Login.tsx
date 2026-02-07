@@ -18,15 +18,42 @@ export default function Login() {
     setErrors(null)
     setLoading(true)
     try {
-      await auth.login({ email, password })
+      const response = await auth.login({ email, password })
+      console.log('Login response:', response)
+      
+      // Check if user needs to set up MFA
+      if (response.requireSetupMfa) {
+        console.log('Navigating to MFA setup')
+        navigate('/mfa-setup', { 
+          replace: true,
+          state: { tempToken: response.tempToken }
+        })
+        return
+      } 
+      // Check if user needs to verify MFA code
+      if (response.mfaRequired) {
+        console.log('Navigating to MFA verify')
+        navigate('/mfa-verify', { 
+          replace: true,
+          state: { tempToken: response.tempToken }
+        })
+        return
+      } 
+      // Normal login flow
+      console.log('Normal login, navigating to home')
       navigate('/', { replace: true })
     } catch (err: unknown) {
+      console.error('Login error:', err)
       if (err instanceof Error) {
-        const errors = JSON.parse(err.message)
-        if (Array.isArray(errors)) {
-          setErrors(errors.map(String))
-        }else {
-          setErrors([t('login.error_generic')])
+        try {
+          const errors = JSON.parse(err.message)
+          if (Array.isArray(errors)) {
+            setErrors(errors.map(String))
+          } else {
+            setErrors([err.message])
+          }
+        } catch {
+          setErrors([err.message || t('login.error_generic')])
         }
       } else {
         setErrors([t('login.error_generic')])

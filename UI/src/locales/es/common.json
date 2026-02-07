@@ -101,5 +101,25 @@
     "resend_success": "Correo reenviado exitosamente",
     "resend_error": "Error al reenviar correo",
     "no_permission": "No tienes permiso para ver usuarios"
+  },
+  "mfa": {
+    "title": "Configurar autenticación de dos factores",
+    "title_verify": "Verificar autenticación de dos factores",
+    "subtitle": "Mejora la seguridad de tu cuenta con TOTP",
+    "subtitle_verify": "Ingresa el código de 6 dígitos de tu aplicación autenticadora",
+    "step1_title": "Paso 1: Escanea el código QR",
+    "step1_description": "Usa una aplicación autenticadora (Google Authenticator, Microsoft Authenticator, Authy, etc.) para escanear este código QR:",
+    "step2_title": "Paso 2: Verifica el código",
+    "step2_description": "Ingresa el código de 6 dígitos de tu aplicación autenticadora:",
+    "code_label": "Código de verificación",
+    "code_placeholder": "000000",
+    "submit": "Activar MFA",
+    "submitting": "Activando MFA…",
+    "success": "MFA ha sido activado exitosamente.",
+    "error_generic": "Error al activar MFA",
+    "error_invalid_code": "Código de verificación inválido",
+    "loading": "Configurando MFA…",
+    "back_to_home": "Volver a Inicio",
+    "trust_device": "Confiar en este dispositivo"
   }
 }

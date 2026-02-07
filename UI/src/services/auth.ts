@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'accessToken'
+const TEMP_TOKEN_KEY = 'tempToken'
 
 type LoginRequest = {
   email: string
@@ -6,7 +7,10 @@ type LoginRequest = {
 }
 
 type LoginResponse = {
-  accessToken: string
+  accessToken?: string
+  tempToken?: string
+  requireSetupMfa?: boolean
+  mfaRequired?: boolean
 }
 
 type JwtPayload = {
@@ -20,7 +24,7 @@ type JwtPayload = {
 
 export const apiBase = import.meta.env.VITE_API_BASE_URL || ''
 
-export async function login(payload: LoginRequest) {
+export async function login(payload: LoginRequest): Promise<LoginResponse> {
   const res = await fetch(`${apiBase}/api/v1/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json',
@@ -35,17 +39,45 @@ export async function login(payload: LoginRequest) {
   }
 
   const data: LoginResponse = await res.json()
+  
+  // Handle MFA setup required case - store temp token for MFA setup
+  if (data.requireSetupMfa) {
+    if (data.tempToken) {
+      sessionStorage.setItem(TEMP_TOKEN_KEY, data.tempToken)
+    }
+    return data
+  }
+  
+  // Handle MFA verification required case - store temp token for MFA verification
+  if (data.mfaRequired) {
+    if (data.tempToken) {
+      sessionStorage.setItem(TEMP_TOKEN_KEY, data.tempToken)
+    }
+    return data
+  }
+  
+  // Normal login flow - store full access token
   if (!data || !data.accessToken) throw new Error('Invalid login response')
   sessionStorage.setItem(TOKEN_KEY, data.accessToken)
+  
   return data
 }
 
 export function logout() {
   sessionStorage.removeItem(TOKEN_KEY)
+  sessionStorage.removeItem(TEMP_TOKEN_KEY)
 }
 
 export function getToken(): string | null {
   return sessionStorage.getItem(TOKEN_KEY)
+}
+
+export function getTempToken(): string | null {
+  return sessionStorage.getItem(TEMP_TOKEN_KEY)
+}
+
+export function clearTempToken(): void {
+  sessionStorage.removeItem(TEMP_TOKEN_KEY)
 }
 
 export function isAuthenticated(): boolean {

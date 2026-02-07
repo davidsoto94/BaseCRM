@@ -101,5 +101,25 @@
     "resend_success": "Email renvoyé avec succès",
     "resend_error": "Erreur lors de l'envoi de l'email",
     "no_permission": "Vous n'avez pas la permission de voir les utilisateurs"
+  },
+  "mfa": {
+    "title": "Configurer l'authentification multifacteur",
+    "title_verify": "Vérifier l'authentification multifacteur",
+    "subtitle": "Améliorez la sécurité de votre compte avec TOTP",
+    "subtitle_verify": "Entrez le code à 6 chiffres de votre application d'authentification",
+    "step1_title": "Étape 1 : Scannez le code QR",
+    "step1_description": "Utilisez une application d'authentification (Google Authenticator, Microsoft Authenticator, Authy, etc.) pour scanner ce code QR :",
+    "step2_title": "Étape 2 : Vérifiez le code",
+    "step2_description": "Entrez le code à 6 chiffres de votre application d'authentification :",
+    "code_label": "Code de vérification",
+    "code_placeholder": "000000",
+    "submit": "Activer MFA",
+    "submitting": "Activation de MFA…",
+    "success": "MFA a été activé avec succès.",
+    "error_generic": "Impossible d'activer MFA",
+    "error_invalid_code": "Code de vérification invalide",
+    "loading": "Configuration de MFA…",
+    "back_to_home": "Retour à l'accueil",
+    "trust_device": "Faire confiance à cet appareil"
   }
 }

@@ -32,32 +32,36 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    var randomKey = Guid.NewGuid().ToString();
-    options.MapInboundClaims = false;
-    options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = Environment.GetEnvironmentVariable(Constants.JwtIssuer),
-        ValidAudience = Environment.GetEnvironmentVariable(Constants.JwtAudience),
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable(Constants.JwtKey) ?? randomKey))
-    };
-});
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
+    {
+        var randomKey = Guid.NewGuid().ToString();
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = Environment.GetEnvironmentVariable(Constants.JwtIssuer),
+            ValidAudience = Environment.GetEnvironmentVariable(Constants.JwtAudience),
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable(Constants.JwtKey) ?? randomKey))
+        };
+    });
 
 builder.Services.AddSingleton<IEmailSender, EmailService>();
 builder.Services.AddScoped<RoleRepository>();
+builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<JWTTokenService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<IdentityErrorLocalizerService>();
 builder.Services.AddScoped<EmailTemplateService>();
+builder.Services.AddScoped<MfaService>();
+builder.Services.AddScoped<DeviceTrustService>();
+builder.Services.AddHttpContextAccessor();
 
 // Add localization services
 builder.Services.AddLocalization(options => 
@@ -107,7 +111,7 @@ await IdentitySeeder.SeedRolesAndAdminAsync(app.Services);
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    
+
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/openapi/v1.json", "v1");
@@ -120,7 +124,8 @@ app.UseRequestLocalization();
 app.UseCors();
 app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseAuthorization(); 
+app.UseAuthorization();
+app.UseMiddleware<BaseCRM.Middleware.EnforceMfaMiddleware>();
 
 app.MapControllers();
 app.MapFallbackToFile("index.html");
