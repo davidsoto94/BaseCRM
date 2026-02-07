@@ -95,5 +95,25 @@
     "resend_success": "Email resent successfully",
     "resend_error": "Failed to resend email",
     "no_permission": "You do not have permission to view users"
+  },
+  "mfa": {
+    "title": "Set up Multi-Factor Authentication",
+    "title_verify": "Verify Multi-Factor Authentication",
+    "subtitle": "Enhance your account security with TOTP",
+    "subtitle_verify": "Enter the 6-digit code from your authenticator app",
+    "step1_title": "Step 1: Scan QR Code",
+    "step1_description": "Use an authenticator app (Google Authenticator, Microsoft Authenticator, Authy, etc.) to scan this QR code:",
+    "step2_title": "Step 2: Verify Code",
+    "step2_description": "Enter the 6-digit code from your authenticator app:",
+    "code_label": "Verification Code",
+    "code_placeholder": "000000",
+    "submit": "Enable MFA",
+    "submitting": "Enabling MFA…",
+    "success": "MFA has been enabled successfully.",
+    "error_generic": "Failed to enable MFA",
+    "error_invalid_code": "Invalid verification code",
+    "loading": "Setting up MFA…",
+    "back_to_home": "Back to Home",
+    "trust_device": "Trust this device"
   }
 }

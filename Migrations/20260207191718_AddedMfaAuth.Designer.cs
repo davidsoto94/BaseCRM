@@ -3,6 +3,7 @@ using System;
 using BaseCRM.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BaseCRM.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260207191718_AddedMfaAuth")]
+    partial class AddedMfaAuth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -231,12 +234,12 @@ namespace BaseCRM.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_trusted_devices");
+                        .HasName("pk_trusted_device");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_trusted_devices_user_id");
+                        .HasDatabaseName("ix_trusted_device_user_id");
 
-                    b.ToTable("trusted_devices", "crm");
+                    b.ToTable("trusted_device", "crm");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -387,7 +390,7 @@ namespace BaseCRM.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_trusted_devices_application_user_user_id");
+                        .HasConstraintName("fk_trusted_device_application_user_user_id");
 
                     b.Navigation("User");
                 });
