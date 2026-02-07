@@ -24,9 +24,6 @@ public class LoginController (UserManager<ApplicationUser> userManager
     [HttpPost]
     public async Task<IActionResult> Post(LoginDTO loginDTO)
     {
-        var rqf = Request.HttpContext.Features.Get<IRequestCultureFeature>();
-        var culture = rqf.RequestCulture.Culture.Name; // e.g., "en-US"
-
         var user = await _userManager.FindByEmailAsync(loginDTO.Email);
         if (user == null)
         {
@@ -36,8 +33,21 @@ public class LoginController (UserManager<ApplicationUser> userManager
             user, loginDTO.Password, lockoutOnFailure: true);
         if (result.Succeeded)
         {
-            var token = await jwtTokenService.GenerateJwtToken(user);
-            return Ok(new { token });
+            var accessToken = await jwtTokenService.GenerateJwtToken(user);
+            var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+            var refreshToken = jwtTokenService.GenerateRefreshToken(ipAddress);
+            user.RefreshTokens.Add(refreshToken);
+            await _userManager.UpdateAsync(user);
+
+            Response.Cookies.Append("refreshToken", refreshToken.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                //Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Expires = refreshToken.Expires
+            });
+
+            return Ok(new { accessToken });
         }
         return BadRequest(new[] { _localizer["InvalidCredentials"].Value } );
     }

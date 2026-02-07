@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -45,9 +46,21 @@ public class JWTTokenService (
             issuer: Environment.GetEnvironmentVariable(Constants.JwtIssuer),
             audience: Environment.GetEnvironmentVariable(Constants.JwtAudience),
             claims: claims,
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.Now.AddMinutes(5),
             signingCredentials: creds);
         return new JwtSecurityTokenHandler().WriteToken(token);
+
+    }
+
+    public RefreshToken GenerateRefreshToken(string ipAddress)
+    {
+        return new RefreshToken
+        {
+            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+            Expires = DateTime.UtcNow.AddDays(7),
+            Created = DateTime.UtcNow,
+            CreatedByIp = ipAddress
+        };
 
     }
 }

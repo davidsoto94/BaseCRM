@@ -80,5 +80,20 @@
     "missing_params": "This confirmation link is invalid or incomplete.",
     "retry": "Try again",
     "back_to_login": "Back to sign in"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage your users",
+    "loading": "Loading users…",
+    "error": "Failed to load users",
+    "no_users": "No users found",
+    "name": "Name",
+    "email": "Email",
+    "actions": "Actions",
+    "edit": "Edit",
+    "resend_email": "Resend Email",
+    "resend_success": "Email resent successfully",
+    "resend_error": "Failed to resend email",
+    "no_permission": "You do not have permission to view users"
   }
 }

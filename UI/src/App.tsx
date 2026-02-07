@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmEmail from './pages/ConfirmEmail'
+import Users from './pages/Users'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { ThemeProvider } from './style/ThemeProvider'
 
@@ -21,6 +22,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/users" element={<Users />} />
         </Route>
       </Routes>
     </ThemeProvider>

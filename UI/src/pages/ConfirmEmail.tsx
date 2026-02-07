@@ -50,7 +50,7 @@ export default function ConfirmEmail() {
       setStatus("loading");
       setErrorMessage(null);
       setErrorKey(null);
-
+      console.log("Starting email confirmation with userId:", userId);
       try {
         const response = await fecthWithLanguage(`${apiBase}/api/v1/confirmemail`, {
           method: "POST",

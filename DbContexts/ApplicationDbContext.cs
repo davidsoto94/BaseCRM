@@ -18,6 +18,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 
     public required DbSet<ApplicationRole> ApplicationRoles { get; set; }
+    public required DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public required DbSet<RefreshToken> RefreshTokens { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

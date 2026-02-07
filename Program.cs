@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -26,8 +27,8 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     {
         options.SignIn.RequireConfirmedAccount = true;
         options.User.RequireUniqueEmail = true;
-    }
-    )
+        options.Tokens.AuthenticatorTokenProvider = "Authenticator";
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddAuthentication(options =>
@@ -113,15 +114,15 @@ if (app.Environment.IsDevelopment())
     });
 
 }
-
+app.UseStaticFiles();
 app.UseRouting();
 app.UseRequestLocalization();
 app.UseCors();
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization(); 
 
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();

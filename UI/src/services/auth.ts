@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'id_token'
+const TOKEN_KEY = 'accessToken'
 
 type LoginRequest = {
   email: string
@@ -6,9 +6,17 @@ type LoginRequest = {
 }
 
 type LoginResponse = {
-  token: string
-  expiresIn?: number
+  accessToken: string
 }
+
+type JwtPayload = {
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  email?: string;
+  picture?: string;
+  permissions?: string;
+};
 
 export const apiBase = import.meta.env.VITE_API_BASE_URL || ''
 
@@ -27,8 +35,8 @@ export async function login(payload: LoginRequest) {
   }
 
   const data: LoginResponse = await res.json()
-  if (!data || !data.token) throw new Error('Invalid login response')
-  sessionStorage.setItem(TOKEN_KEY, data.token)
+  if (!data || !data.accessToken) throw new Error('Invalid login response')
+  sessionStorage.setItem(TOKEN_KEY, data.accessToken)
   return data
 }
 
@@ -47,7 +55,7 @@ export function isAuthenticated(): boolean {
 export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}) {
   const token = getToken()
   const headers = new Headers(init.headers ?? undefined)
-  headers.set("Content-Language", localStorage.getItem('lang') || 'en')
+  headers.set("Accept-Language", localStorage.getItem('lang') || 'en')
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`)
   }
@@ -65,6 +73,29 @@ export function isTokenValid(token: string) {
   } catch {
     return false
   }
+}
+
+/**
+ * Decode a JWT token and return its payload
+ */
+export function decodeJwt(token: string): JwtPayload | null {
+  try {
+    const payload = token.split('.')[1]
+    if (!payload) return null
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Get the current user's JWT payload
+ */
+export function getCurrentUserPayload(): JwtPayload | null {
+  const token = getToken()
+  if (!token) return null
+  return decodeJwt(token)
 }
 
 const auth = {

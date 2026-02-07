@@ -18,6 +18,7 @@ public class AccountService (
     IEmailSender emailSender,
     EmailTemplateService emailTemplateService,
     IdentityErrorLocalizerService identityErrorLocalizer,
+    JWTTokenService jwtTokenService,
     IStringLocalizer<EmailTemplates> emailLocalizer)
 {
 
@@ -75,11 +76,6 @@ public class AccountService (
     public async Task<(bool Success, IEnumerable<string>? Errors)> RegisterNewUser(RegisterDTO newUser, ApplicationUser requestUser)
     {
         var user = await _userManager.FindByEmailAsync(newUser.Email);
-        if(user is not null && !user.EmailConfirmed)
-        {
-            await SendConfirmationEmail(user);
-        }
-
         user = new ApplicationUser
         {
             UserName = newUser.Email,
@@ -104,6 +100,42 @@ public class AccountService (
 
         await SendConfirmationEmail(user);
         return (true, null);
+    }
+
+    public async Task<(bool Success, string? AccessToken, string? RefreshToken, string? Error)> RefreshToken(string refreshToken, string ipAddress)
+    {
+        var user = await _userManager.Users
+            .SingleOrDefaultAsync(u => u.RefreshTokens
+                .Any(t => t.Token == refreshToken));
+
+        if (user == null)
+            return (false, null, null, "Invalid token");
+
+        var token = user.RefreshTokens.SingleOrDefault(t => t.Token == refreshToken);
+
+        if (token == null)
+            return (false, null, null, "Invalid token");
+
+        // If token is revoked, reject the request
+        if (token.Revoked != null)
+            return (false, null, null, "Token has been revoked");
+
+        // If token is expired, replace it with a new one
+        if (token.IsExpired)
+        {
+            var newRefreshToken = jwtTokenService.GenerateRefreshToken(ipAddress);
+            token.ReplacedByToken = newRefreshToken.Token;
+            token.Revoked = DateTime.Now;
+            await _userManager.UpdateAsync(user);
+
+            var newAccessToken = await jwtTokenService.GenerateJwtToken(user);
+            return (true, newAccessToken, newRefreshToken.Token, null);
+        }
+
+        // Token is valid, generate new tokens
+        var newAccessTokenValid = await jwtTokenService.GenerateJwtToken(user);
+
+        return (true, newAccessTokenValid, null, null);
     }
 
     private async Task<List<string>> RolesToBeAdded(List<string> rolesAttempted, ApplicationUser requestUser)
@@ -168,11 +200,11 @@ public class AccountService (
             .ToList();
     }
 
-    private async Task SendConfirmationEmail(ApplicationUser user)
+    public async Task SendConfirmationEmail(ApplicationUser user)
     {
         string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var urlEncodedCode = HttpUtility.UrlEncode(code);
-        var confirmationUrl = $"{Environment.GetEnvironmentVariable(Constants.ClientUrl)}/confirm-email?userId={user.Id}&code={urlEncodedCode}";
+        var confirmationUrl = $"{Environment.GetEnvironmentVariable(Constants.ClientUrl)}/confirm-email?userId={user.Id}&token={urlEncodedCode}";
 
         // Get localized email body
         var emailBody = await _emailTemplateService.GetConfirmationEmailHtmlAsync(user.Name ?? "User", confirmationUrl, DateTime.Now.Year);

@@ -4,6 +4,7 @@ using BaseCRM.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
 namespace BaseCRM.Controllers;
@@ -31,7 +32,14 @@ public class UsersController (AccountService accountService,
         {
             return Unauthorized(_localizer["UnauthorizedAccess"].Value);
         }
-        // Placeholder for getting users logic
-        return Ok("Get users endpoint");
+        var users = await _userManager.Users.Select(s => new
+            {
+                s.Id,
+                s.Name,
+                s.LastName,
+                s.Email,
+                s.EmailConfirmed
+            }).ToListAsync();
+        return Ok(users);
     }
 }
