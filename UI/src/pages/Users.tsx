@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NavigationBar from '../components/NavigationBar'
 import { useI18n } from '../i18n/I18nProvider'
@@ -25,38 +25,40 @@ export default function Users() {
 	const [error, setError] = useState<string | null>(null)
 	const [resendingId, setResendingId] = useState<string | null>(null)
 	const [resendStatus, setResendStatus] = useState<{ [key: string]: string }>({})
+	const hasFetched = useRef(false)
   const payload = token ? decodeJwt(token) : null;
 
   const canViewUsers = payload?.permissions?.includes(Permissions.ViewUser) ?? false;
   const canAddUser = payload?.permissions?.includes(Permissions.AddUser) ?? false;
   const canEditUser = payload?.permissions?.includes(Permissions.EditUser) ?? false;
 
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await fetchWithAuth(`${apiBase}/api/v1/users`)
+
+      if (!response.ok) {
+        throw new Error(t('users.error'))
+      }
+
+      const data = await response.json()
+      setUsers(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('users.error'))
+    } finally {
+      setLoading(false)
+    }
+  }, [t])
+
   useEffect(() => {
-    if (!canViewUsers) {
+    if (!canViewUsers || hasFetched.current) {
       return
     }
 
-    const fetchUsers = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const response = await fetchWithAuth(`${apiBase}/api/v1/users`)
-
-        if (!response.ok) {
-          throw new Error(t('users.error'))
-        }
-
-        const data = await response.json()
-        setUsers(Array.isArray(data) ? data : data.data || [])
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t('users.error'))
-      } finally {
-        setLoading(false)
-      }
-    }
-
+    hasFetched.current = true
     fetchUsers()
-  }, [canViewUsers, t])
+  }, [canViewUsers, fetchUsers])
 
   const handleResendEmail = async (userId: string) => {
     try {

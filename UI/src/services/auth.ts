@@ -1,6 +1,8 @@
 const TOKEN_KEY = 'accessToken'
 const TEMP_TOKEN_KEY = 'tempToken'
 
+let refreshPromise: Promise<boolean> | null = null
+
 type LoginRequest = {
   email: string
   password: string
@@ -70,19 +72,8 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
 
 export async function logout(): Promise<void> {
   try {
-    const token = getToken()
-    const headers = new Headers({
-      'Content-Type': 'application/json',
-      'Accept-Language': localStorage.getItem('lang') || 'en',
-    })
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`)
-    }
-
-    await fetch(`${apiBase}/api/v1/logout`, {
-      method: 'POST',
-      credentials: 'include',
-      headers,
+    await fetchWithAuth(`${apiBase}/api/v1/logout`, {
+      method: 'POST'
     })
   } catch (error) {
     console.error('Logout API call failed:', error)
@@ -110,37 +101,46 @@ export function isAuthenticated(): boolean {
 
 /**
  * Refresh the access token using the refresh token from HTTP-only cookie
+ * Prevents multiple concurrent refresh attempts
  */
 export async function refreshAccessToken(): Promise<boolean> {
-  try {
-    const res = await fetch(`${apiBase}/api/v1/RefreshToken`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept-Language': localStorage.getItem('lang') || 'en',
-      },
-    })
-
-    if (!res.ok) {
-      void logout()
-      return false
-    }
-
-    const data: RefreshTokenResponse = await res.json()
-    if (!data.accessToken) {
-      void logout()
-      return false
-    }
-
-    sessionStorage.setItem(TOKEN_KEY, data.accessToken)
-
-    return true
-  } catch (error) {
-    console.error('Token refresh failed:', error)
-    void logout()
-    return false
+  // If a refresh is already in progress, wait for it instead of starting a new one
+  if (refreshPromise) {
+    return refreshPromise
   }
+
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${apiBase}/api/v1/RefreshToken`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept-Language': localStorage.getItem('lang') || 'en',
+        },
+      })
+
+      if (!res.ok) {
+        return false
+      }
+
+      const data: RefreshTokenResponse = await res.json()
+      if (!data.accessToken) {
+        return false
+      }
+
+      sessionStorage.setItem(TOKEN_KEY, data.accessToken)
+
+      return true
+    } catch  {
+      sessionStorage.removeItem(TOKEN_KEY)
+      return false
+    } finally {
+      refreshPromise = null
+    }
+  })()
+
+  return refreshPromise
 }
 
 export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}) {

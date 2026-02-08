@@ -107,6 +107,7 @@ public class AccountService (
     public async Task<(bool Success, string? AccessToken, string? RefreshToken, string? Error)> RefreshToken(string refreshToken, string ipAddress)
     {
         var user = await _userManager.Users
+            .Include(u => u.RefreshTokens)
             .SingleOrDefaultAsync(u => u.RefreshTokens
                 .Any(t => t.Token == refreshToken));
 
@@ -240,6 +241,7 @@ public class AccountService (
     public async Task<(bool Success, string? Error)> RevokeRefreshToken(string refreshToken, string ipAddress)
     {
         var user = await _userManager.Users
+            .Include(u => u.RefreshTokens)
             .SingleOrDefaultAsync(u => u.RefreshTokens
                 .Any(t => t.Token == refreshToken));
 

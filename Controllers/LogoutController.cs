@@ -14,7 +14,6 @@ public class LogoutController (AccountService accountService
 {
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
-    [Authorize]
     [HttpPost()]
     public async Task<IActionResult> Post()
     {
@@ -23,15 +22,12 @@ public class LogoutController (AccountService accountService
         {
             return Unauthorized(new[] { _localizer["InvalidCredentials"].Value });
         }
-
+        Response.Cookies.Delete("refreshToken");
         var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
         var result = await accountService.RevokeRefreshToken(refreshToken, ipAddress);
 
         if (!result.Success)
             return BadRequest(new[] { _localizer[result.Error ?? "InvalidCredentials"].Value });
-
-        // Clear the refresh token cookie
-        Response.Cookies.Delete("refreshToken");
 
         return Ok(new { message = "Logout successful" });
     }

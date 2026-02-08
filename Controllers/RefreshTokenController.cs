@@ -13,8 +13,7 @@ public class RefreshTokenController(AccountService accountService
 {
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
-    [Authorize]
-    [HttpPost("refresh")]
+    [HttpPost()]
     public async Task<IActionResult> Post()
     {
         // Get refresh token from httpOnly cookie
