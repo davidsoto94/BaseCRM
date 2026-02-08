@@ -19,6 +19,7 @@ public class AccountService (
     EmailTemplateService emailTemplateService,
     IdentityErrorLocalizerService identityErrorLocalizer,
     JWTTokenService jwtTokenService,
+    IHttpContextAccessor httpContextAccessor,
     IStringLocalizer<EmailTemplates> emailLocalizer)
 {
 
@@ -27,6 +28,7 @@ public class AccountService (
     private readonly EmailTemplateService _emailTemplateService = emailTemplateService;
     private readonly IdentityErrorLocalizerService _identityErrorLocalizer = identityErrorLocalizer;
     private readonly IStringLocalizer<EmailTemplates> _emailLocalizer = emailLocalizer;
+    private readonly HttpContext _httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is required");
 
 
     public async Task<(bool Success, IEnumerable<string>? Errors)> ResetPasswordAsync(string email, string resetCode, string newPassword)
@@ -212,5 +214,58 @@ public class AccountService (
 
         // Send the confirmation email
         await emailSender.SendEmailAsync(user.Email!, emailSubject, emailBody);
+    }
+
+    public async Task<string?> GetAccessTokenWithRefreshToken(ApplicationUser user)
+    {
+        if (!_httpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrEmpty(refreshToken))
+        {
+            var ipAddress = _httpContext.Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+            var newToken = jwtTokenService.GenerateRefreshToken(ipAddress);
+            _httpContext.Response.Cookies.Append("refreshToken", newToken.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
+            user.RefreshTokens.Add(newToken);
+            await _userManager.UpdateAsync(user);
+        }
+        var accessToken = await jwtTokenService.GenerateJwtToken(user);
+        return accessToken;
+
+    }
+
+    public async Task<(bool Success, string? Error)> RevokeRefreshToken(string refreshToken, string ipAddress)
+    {
+        var user = await _userManager.Users
+            .SingleOrDefaultAsync(u => u.RefreshTokens
+                .Any(t => t.Token == refreshToken));
+
+        if (user == null)
+            return (false, "Invalid token");
+
+        var token = user.RefreshTokens.SingleOrDefault(t => t.Token == refreshToken);
+
+        if (token == null)
+            return (false, "Invalid token");
+
+        // If token is already revoked, return success
+        if (token.Revoked != null)
+            return (true, null);
+
+        // Revoke the token
+        token.Revoked = DateTime.UtcNow;
+        token.RevokedByIp = ipAddress;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            var localizedErrors = _identityErrorLocalizer.LocalizeErrors(result.Errors ?? []);
+            return (false, string.Join(", ", localizedErrors ?? []));
+        }
+
+        return (true, null);
     }
 }

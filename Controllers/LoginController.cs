@@ -14,6 +14,7 @@ namespace BaseCRM.Controllers;
 public class LoginController (UserManager<ApplicationUser> userManager
     , SignInManager<ApplicationUser> signInManager
     , JWTTokenService jwtTokenService
+    , AccountService accountService
     , DeviceTrustService deviceTrustService
     , IStringLocalizer<IdentityErrorMessages> localizer): ControllerBase
 {
@@ -54,7 +55,7 @@ public class LoginController (UserManager<ApplicationUser> userManager
             else
             {
                 // Generate full access token
-                accessToken = await jwtTokenService.GenerateJwtToken(user);
+                accessToken = await accountService.GetAccessTokenWithRefreshToken(user);
             }
 
             var response = new LoginResponse

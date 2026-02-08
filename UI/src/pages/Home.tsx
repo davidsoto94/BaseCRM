@@ -7,8 +7,8 @@ export default function Home() {
   const navigate = useNavigate()
   const { t } = useI18n()
 
-  function handleLogout() {
-    auth.logout()
+  async function handleLogout() {
+    await auth.logout()
     navigate('/login')
   }
 

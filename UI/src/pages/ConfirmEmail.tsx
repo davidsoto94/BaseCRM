@@ -4,7 +4,7 @@ import LangSelector from "../components/LangSelector";
 import { ThemeToggle } from "../components/ToggleComponent";
 import { useI18n } from "../i18n/I18nProvider";
 import { apiBase } from "../services/auth";
-import { fecthWithLanguage } from "../Utilities/fetchWithLanguage";
+import { fetchWithLanguage } from "../Utilities/fetchWithLanguage";
 
 type RequestStatus = "idle" | "loading" | "success" | "error";
 
@@ -52,7 +52,7 @@ export default function ConfirmEmail() {
       setErrorKey(null);
       console.log("Starting email confirmation with userId:", userId);
       try {
-        const response = await fecthWithLanguage(`${apiBase}/api/v1/confirmemail`, {
+        const response = await fetchWithLanguage(`${apiBase}/api/v1/confirmemail`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId, token }),

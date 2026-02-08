@@ -8,13 +8,14 @@ namespace BaseCRM.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
-public class RefreshTokenController(AccountService accountService
+
+public class LogoutController (AccountService accountService
     , IStringLocalizer<IdentityErrorMessages> localizer) : ControllerBase
 {
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
     [Authorize]
-    [HttpPost("refresh")]
+    [HttpPost()]
     public async Task<IActionResult> Post()
     {
         // Get refresh token from httpOnly cookie
@@ -24,22 +25,14 @@ public class RefreshTokenController(AccountService accountService
         }
 
         var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var result = await accountService.RefreshToken(refreshToken, ipAddress);
+        var result = await accountService.RevokeRefreshToken(refreshToken, ipAddress);
 
         if (!result.Success)
-            return Unauthorized(new[] { _localizer[result.Error ?? "InvalidCredentials"].Value });
+            return BadRequest(new[] { _localizer[result.Error ?? "InvalidCredentials"].Value });
 
-        if (result.RefreshToken != null)
-        {
-            Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Lax,
-                Expires = DateTimeOffset.UtcNow.AddDays(7)
-            });
-        }        
+        // Clear the refresh token cookie
+        Response.Cookies.Delete("refreshToken");
 
-        return Ok(new { accessToken = result.AccessToken });
+        return Ok(new { message = "Logout successful" });
     }
 }

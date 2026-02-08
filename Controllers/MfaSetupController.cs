@@ -11,12 +11,15 @@ namespace BaseCRM.Controllers;
 [Route("api/v1/mfa")]
 [ApiController]
 [Authorize]
-public class MfaController (UserManager<ApplicationUser> userManager, MfaService mfaService, DeviceTrustService deviceTrustService, JWTTokenService jwtTokenService) : ControllerBase
+public class MfaController (UserManager<ApplicationUser> userManager, 
+    MfaService mfaService, 
+    DeviceTrustService deviceTrustService,
+    AccountService accountService) : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly MfaService _mfaService = mfaService;
     private readonly DeviceTrustService _deviceTrustService = deviceTrustService;
-    private readonly JWTTokenService _jwtTokenService = jwtTokenService;
+    private readonly AccountService _accountService = accountService;
 
     [HttpGet]
     public async Task<IActionResult> Get()
@@ -152,19 +155,7 @@ public class MfaController (UserManager<ApplicationUser> userManager, MfaService
             return BadRequest(errors);
         }
 
-        var accessToken = await _jwtTokenService.GenerateJwtToken(user);
-        var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var refreshToken = jwtTokenService.GenerateRefreshToken(ipAddress);
-        user.RefreshTokens.Add(refreshToken);
-        await _userManager.UpdateAsync(user);
-
-        Response.Cookies.Append("refreshToken", refreshToken.Token, new CookieOptions
-        {
-            HttpOnly = true,
-            //Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = refreshToken.Expires
-        });
+        var accessToken = await _accountService.GetAccessTokenWithRefreshToken(user);
         return Ok(new { verified = true, accessToken = accessToken });
     }
 
@@ -198,18 +189,6 @@ public class MfaController (UserManager<ApplicationUser> userManager, MfaService
         {
             return BadRequest(errors);
         }
-        var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        var refreshToken = jwtTokenService.GenerateRefreshToken(ipAddress);
-        user.RefreshTokens.Add(refreshToken);
-        await _userManager.UpdateAsync(user);
-
-        Response.Cookies.Append("refreshToken", refreshToken.Token, new CookieOptions
-        {
-            HttpOnly = true,
-            //Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = refreshToken.Expires
-        });
         // Trust this device after successful MFA verification
         var deviceFingerprint = _deviceTrustService.GenerateDeviceFingerprint();
         var deviceName = _deviceTrustService.ExtractDeviceName();
@@ -217,7 +196,7 @@ public class MfaController (UserManager<ApplicationUser> userManager, MfaService
         await _userManager.UpdateAsync(user);
 
         // Generate and return full access token
-        var accessToken = await _jwtTokenService.GenerateJwtToken(user);
+        var accessToken = await _accountService.GetAccessTokenWithRefreshToken(user);
 
         return Ok(new { verified = true, deviceTrusted = true, accessToken = accessToken });
     }

@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import basicSsl from "@vitejs/plugin-basic-ssl"
+
 
 
 // https://vite.dev/config/
@@ -11,15 +13,14 @@ export default defineConfig({
   },
   plugins: [react(),
     tailwindcss(),
+    basicSsl(),
   ],
   server: {
     proxy: {
       // Proxy requests starting with /api to the .NET backend
       '/api': {
         target: 'https://localhost:44313', // Replace with your .NET URL
-        changeOrigin: true,
-        secure: false, // Set to true if using valid HTTPS certificates
-        rewrite: (path) => path.replace(/^\/api/, '') // Optional: remove /api prefix
+        changeOrigin: true
       }
     }
   }

@@ -7,10 +7,9 @@ using BaseCRM.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -94,7 +93,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(Environment.GetEnvironmentVariable(Constants.ClientUrl) ?? "", Environment.GetEnvironmentVariable(Constants.ApplicationUrl) ?? "")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -111,13 +111,9 @@ await IdentitySeeder.SeedRolesAndAdminAsync(app.Services);
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/openapi/v1.json", "v1");
-    });
-
+    app.MapScalarApiReference();
 }
+
 app.UseStaticFiles();
 app.UseRouting();
 app.UseRequestLocalization();

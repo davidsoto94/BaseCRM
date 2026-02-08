@@ -28,6 +28,13 @@ public class EnforceMfaMiddleware
         "/api/v1/refreshToken",
     };
 
+    // Paths that only scoped tokens (temporary MFA tokens) can access
+    private static readonly HashSet<string> ScopedTokenOnlyPaths = new()
+    {
+        "/api/v1/mfa/setup",
+        "/api/v1/mfa/verify",
+    };
+
     public EnforceMfaMiddleware(RequestDelegate next, ILogger<EnforceMfaMiddleware> logger)
     {
         _next = next;
@@ -43,18 +50,35 @@ public class EnforceMfaMiddleware
         {
             var requestPath = context.Request.Path.Value?.ToLower() ?? string.Empty;
 
+            // Check if the current token is a scoped/temporary token (for MFA only)
+            var scopeClaim = user.FindFirst("scope")?.Value;
+            var hasScopedToken = !string.IsNullOrEmpty(scopeClaim);
+
+            // If user has a scoped token, they can ONLY access scoped token only paths
+            if (hasScopedToken && !IsScopedTokenOnlyPath(requestPath))
+            {
+                _logger.LogWarning($"Scoped token attempted to access non-MFA endpoint: {requestPath}");
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsJsonAsync(new 
+                { 
+                    error = "This temporary token can only be used for MFA operations",
+                    requiresMfa = true 
+                });
+                return;
+            }
+
             // Skip exempt paths
             if (!IsExemptPath(requestPath))
             {
                 var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                
+
                 if (!string.IsNullOrEmpty(userId))
                 {
                     var appUser = await userManager.FindByIdAsync(userId);
                     if (appUser != null)
                     {
                         var isMfaEnabled = await userManager.GetTwoFactorEnabledAsync(appUser);
-                        
+
                         // If user doesn't have MFA enabled, deny access
                         if (!isMfaEnabled)
                         {
@@ -85,6 +109,22 @@ public class EnforceMfaMiddleware
         foreach (var exemptPath in ExemptPaths)
         {
             if (path.StartsWith(exemptPath, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsScopedTokenOnlyPath(string path)
+    {
+        // Check exact matches
+        if (ScopedTokenOnlyPaths.Contains(path))
+            return true;
+
+        // Check if path starts with scoped token only paths (to allow query strings, etc.)
+        foreach (var scopedPath in ScopedTokenOnlyPaths)
+        {
+            if (path.StartsWith(scopedPath, StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 

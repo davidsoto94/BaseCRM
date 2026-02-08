@@ -4,7 +4,7 @@ import { ThemeToggle } from "../components/ToggleComponent";
 import LangSelector from "../components/LangSelector";
 import { useI18n } from "../i18n/I18nProvider";
 import { apiBase } from "../services/auth";
-import { fecthWithLanguage } from "../Utilities/fetchWithLanguage";
+import { fetchWithLanguage } from "../Utilities/fetchWithLanguage";
 
 export default function ForgotPassword() {
   const { t } = useI18n();
@@ -20,7 +20,7 @@ export default function ForgotPassword() {
     setSuccess(false);
     setLoading(true);
     try {
-      const response = await fecthWithLanguage(`${apiBase}/api/v1/forgotpassword`, {
+      const response = await fetchWithLanguage(`${apiBase}/api/v1/forgotpassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

@@ -13,6 +13,10 @@ type LoginResponse = {
   mfaRequired?: boolean
 }
 
+type RefreshTokenResponse = {
+  accessToken: string
+}
+
 type JwtPayload = {
   name?: string;
   given_name?: string;
@@ -27,6 +31,7 @@ export const apiBase = import.meta.env.VITE_API_BASE_URL || ''
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
   const res = await fetch(`${apiBase}/api/v1/login`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json',
       'Accept-Language' : localStorage.getItem('lang') || 'en'
      },
@@ -63,9 +68,28 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
   return data
 }
 
-export function logout() {
-  sessionStorage.removeItem(TOKEN_KEY)
-  sessionStorage.removeItem(TEMP_TOKEN_KEY)
+export async function logout(): Promise<void> {
+  try {
+    const token = getToken()
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'Accept-Language': localStorage.getItem('lang') || 'en',
+    })
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`)
+    }
+
+    await fetch(`${apiBase}/api/v1/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers,
+    })
+  } catch (error) {
+    console.error('Logout API call failed:', error)
+  } finally {
+    sessionStorage.removeItem(TOKEN_KEY)
+    sessionStorage.removeItem(TEMP_TOKEN_KEY)
+  }
 }
 
 export function getToken(): string | null {
@@ -84,6 +108,41 @@ export function isAuthenticated(): boolean {
   return !!getToken()
 }
 
+/**
+ * Refresh the access token using the refresh token from HTTP-only cookie
+ */
+export async function refreshAccessToken(): Promise<boolean> {
+  try {
+    const res = await fetch(`${apiBase}/api/v1/RefreshToken`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept-Language': localStorage.getItem('lang') || 'en',
+      },
+    })
+
+    if (!res.ok) {
+      void logout()
+      return false
+    }
+
+    const data: RefreshTokenResponse = await res.json()
+    if (!data.accessToken) {
+      void logout()
+      return false
+    }
+
+    sessionStorage.setItem(TOKEN_KEY, data.accessToken)
+
+    return true
+  } catch (error) {
+    console.error('Token refresh failed:', error)
+    void logout()
+    return false
+  }
+}
+
 export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}) {
   const token = getToken()
   const headers = new Headers(init.headers ?? undefined)
@@ -91,12 +150,30 @@ export async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit 
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`)
   }
-  return fetch(input, { ...init, headers })
+  
+  let response = await fetch(input, { ...init, headers, credentials: 'include' })
+
+  // If we get a 401, try to refresh the token and retry the request
+  if (response.status === 401) {
+    const refreshed = await refreshAccessToken()
+    if (refreshed) {
+      const newToken = getToken()
+      const newHeaders = new Headers(init.headers ?? undefined)
+      newHeaders.set("Accept-Language", localStorage.getItem('lang') || 'en')
+      if (newToken && !newHeaders.has("Authorization")) {
+        newHeaders.set("Authorization", `Bearer ${newToken}`)
+      }
+      response = await fetch(input, { ...init, headers: newHeaders, credentials: 'include' })
+    }
+  }
+
+  return response
 }
 
 export function isTokenValid(token: string) {
   try {
     const [, payload] = token.split(".")
+
     if (!payload) return false
     const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")))
     if (!decoded?.exp) return true
