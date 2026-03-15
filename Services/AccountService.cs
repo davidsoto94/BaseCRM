@@ -27,7 +27,7 @@ public class AccountService(
     IHttpContextAccessor httpContextAccessor,
     IStringLocalizer<EmailTemplates> emailLocalizer,
     IStringLocalizer<IdentityErrorMessages> identityLocalizer,
-    EventLoggerRepository eventLoggerRepository)
+    ActivityLogRepository eventLoggerRepository)
 {
 
     private readonly UserManager<ApplicationUser> _userManager = userManager;
@@ -38,7 +38,7 @@ public class AccountService(
     private readonly IdentityErrorLocalizerService _identityErrorLocalizer = identityErrorLocalizer;
     private readonly IStringLocalizer<EmailTemplates> _emailLocalizer = emailLocalizer;
     private readonly IStringLocalizer<IdentityErrorMessages> _identityLocalizer = identityLocalizer;
-    private readonly EventLoggerRepository _eventLoggerRepository = eventLoggerRepository;
+    private readonly ActivityLogRepository _eventLoggerRepository = eventLoggerRepository;
     private readonly HttpContext _httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is required");
 
 
@@ -202,12 +202,12 @@ public class AccountService(
             }));
         }
 
-        await _eventLoggerRepository.AddEventLogAsync(new EventLogger
+        await _eventLoggerRepository.AddActivityLogAsync(new ActivityLog
         {
             TriggerUserEmail = user.Email,
             AffectedUsersEmails = new List<string> { newUser.Email! },
-            EventTypes = new List<EventTypeEnum> { EventTypeEnum.UserAdd },
-            DescriptionCode = EventTypeEnum.UserAdd.ToString(),
+            ActivityTypes = new List<ActivityTypeEnum> { ActivityTypeEnum.UserAdd },
+            DescriptionCode = ActivityTypeEnum.UserAdd.ToString(),
             DescriptionEnglish = string.Format("User {0} added a new user with email {1}", user.Email, newUser.Email)
         });
 
@@ -216,16 +216,16 @@ public class AccountService(
         foreach (var role in currentRoles)
         {
             await _userManager.AddToRoleAsync(newUser, role);
-            var eventToAdd = new EventLogger
+            var eventToAdd = new ActivityLog
             {
                 TriggerUserEmail = user.Email,
                 AffectedUsersEmails = new List<string> { newUser.Email! },
-                EventTypes = new List<EventTypeEnum> { EventTypeEnum.RoleAdd },
-                DescriptionCode = EventTypeEnum.UserAdd.ToString(),
+                ActivityTypes = new List<ActivityTypeEnum> { ActivityTypeEnum.RoleAdd },
+                DescriptionCode = ActivityTypeEnum.UserAdd.ToString(),
                 DescriptionEnglish = string.Format("User {0} added user {1} to the role {2}", user.Email, newUser.Email, role)
             };
 
-            await _eventLoggerRepository.AddEventLogAsync(eventToAdd);
+            await _eventLoggerRepository.AddActivityLogAsync(eventToAdd);
         }
 
         await SendConfirmationEmail(newUser);

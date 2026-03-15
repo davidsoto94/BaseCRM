@@ -1,0 +1,16 @@
+﻿using BaseRMS.Entities.AttatchmentClasses;
+
+namespace BaseRMS.Entities;
+
+public class Client
+{
+    public int Id { get; set; }
+    public required string Address { get; set; }
+    public required string Name { get; set; }
+    public int PhoneNumber { get; set; }
+    public string? Email { get; set; }
+    public string? ClientImagePath { get; set; }
+    public ICollection<ClientAttachment> Attachments { get; set; } = new List<ClientAttachment>();
+    public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
+
+}
