@@ -1,5 +1,4 @@
 ﻿using BaseRMS.Entities;
-using BaseRMS.Enums;
 using BaseRMS.Repositories;
 using Microsoft.AspNetCore.Identity;
 
@@ -15,19 +14,24 @@ public static class IdentitySeeder
             var roleRepository = scope.ServiceProvider.GetRequiredService<RoleRepository>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            var allEnums = Enum.GetValues(typeof(PermissionEnum)).Cast<PermissionEnum>().ToList();
+            var allPermissions = typeof(Permissions)
+                .GetNestedTypes()
+                .SelectMany(t => t.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy))
+                .Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
+                .Select(f => (string)f.GetValue(null)!)
+                .ToList();
 
             // Define roles to seed
             var role = roleManager.Roles.FirstOrDefault(r => r.Name == "Admin");
             if (role  == null)
             {
-                role = new ApplicationRole() { Name = "Admin", Permitions = allEnums };
+                role = new ApplicationRole() { Name = "Admin", Permitions = allPermissions };
                 await roleManager.CreateAsync(role);
             }
 
-            if (role.Permitions != allEnums) {
+            if (role.Permitions != allPermissions) {
                 //This ensures that all permissions added are now in the admin role
-                role.Permitions = allEnums;
+                role.Permitions = allPermissions;
                 await roleRepository.UpdateRolePermissions(role);
             }
             // Define the admin user details

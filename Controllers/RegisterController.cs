@@ -1,4 +1,6 @@
 ﻿using BaseRMS.DTOs;
+using BaseRMS.Entities;
+using BaseRMS.Extensions;
 using BaseRMS.Localization;
 using BaseRMS.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +21,7 @@ public class RegisterController(
     
     [HttpPost]
     [Authorize]
+    [HasPermission(Permissions.User.Create)]
     public async Task<IActionResult> Post(RegisterDTO model)
     {
         

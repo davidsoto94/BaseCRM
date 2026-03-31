@@ -1,4 +1,5 @@
 using BaseRMS.Localization;
+using BaseRMS.Services.Interfaces;
 using Microsoft.Extensions.Localization;
 
 namespace BaseRMS.Services;
@@ -6,7 +7,7 @@ namespace BaseRMS.Services;
 /// <summary>
 /// Service for loading and rendering localized email templates
 /// </summary>
-public class EmailTemplateService(IStringLocalizer<EmailTemplates> localizer)
+public class EmailTemplateService(IStringLocalizer<EmailTemplates> localizer) : IEmailTemplateService
 {
     private readonly IStringLocalizer<EmailTemplates> _localizer = localizer;
 

@@ -1,5 +1,6 @@
 using BaseRMS.DTOs;
 using BaseRMS.Entities;
+using BaseRMS.Extensions;
 using BaseRMS.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +45,7 @@ public class MfaController (UserManager<ApplicationUser> userManager,
     }
 
     [HttpDelete]
+    [HasPermission(Permissions.MFA.Disable)]
     public async Task<IActionResult> Delete(string emailToDisable)
     {
         var userRequest = await _accountService.GetApplicationUser(User);

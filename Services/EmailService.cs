@@ -1,11 +1,12 @@
 ﻿using BaseRMS.Configurations;
+using BaseRMS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Net;
 using System.Net.Mail;
 
 namespace BaseRMS.Services;
 
-public class EmailService : IEmailSender
+public class EmailService : IEmailService, IEmailSender
 {
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {

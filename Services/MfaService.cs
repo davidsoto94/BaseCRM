@@ -1,23 +1,17 @@
 using BaseRMS.DTOs;
 using BaseRMS.Entities;
-using BaseRMS.Enums;
 using BaseRMS.Extensions;
-using BaseRMS.Localization;
+using BaseRMS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Localization;
 using System.Text;
 
 namespace BaseRMS.Services;
 
 public class MfaService(UserManager<ApplicationUser> userManager,
-    IdentityErrorLocalizerService identityErrorLocalizer,
-    IStringLocalizer<IdentityErrorMessages> identityLocalizer,
-    AccountService accountService)
+    IIdentityErrorLocalizerService identityErrorLocalizer) : IMfaService
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
-    private readonly IdentityErrorLocalizerService _identityErrorLocalizer = identityErrorLocalizer;
-    private readonly IStringLocalizer<IdentityErrorMessages> _identityLocalizer = identityLocalizer;
-    private readonly AccountService _accountService = accountService;
+    private readonly IIdentityErrorLocalizerService _identityErrorLocalizer = identityErrorLocalizer;
 
     public async Task<bool> IsMfaEnable(ApplicationUser user)
     {
@@ -86,10 +80,6 @@ public class MfaService(UserManager<ApplicationUser> userManager,
 
     public async Task DisableMfaAsync(ApplicationUser userRequest, string emailToDisable)
     {        
-        if (!await _accountService.IsAuthorizedForPermission(userRequest, PermissionEnum.DisableMFA))
-        {
-            throw new UnauthorizedAccessException(_identityLocalizer["UnauthorizedAccess"]);
-        }
         var user = await _userManager.FindByEmailAsync(emailToDisable);              
         if (user is null)
         {
@@ -135,7 +125,6 @@ public class MfaService(UserManager<ApplicationUser> userManager,
             throw new ArgumentException("Invalid authenticator code");
         }
     }
-
 
     public async Task<List<string>> GenerateRecoveryCodesAsync(ApplicationUser user)
     {

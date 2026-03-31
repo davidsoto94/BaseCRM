@@ -1,7 +1,7 @@
 ﻿using BaseRMS.Configurations;
 using BaseRMS.Entities;
-using BaseRMS.Enums;
 using BaseRMS.Repositories;
+using BaseRMS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,8 +15,7 @@ namespace BaseRMS.Services;
 
 public class JWTTokenService (
     UserManager<ApplicationUser> userManager,
-    RoleRepository roleRepository
-    )
+    RoleRepository roleRepository) : IJWTTokenService
 {
     public async Task<string> GenerateJwtToken(ApplicationUser user, string? scope = null)
     {
@@ -28,7 +27,6 @@ public class JWTTokenService (
             .ToListAsync())
             .SelectMany(s => s)
             .Distinct()
-            .Select(p => Enum.GetName(typeof(PermissionEnum), p))
             .ToList();
 
         var claims = new List<Claim>

@@ -1,7 +1,6 @@
 ﻿using BaseRMS.Entities;
 using BaseRMS.Entities.Abstract;
 using BaseRMS.Entities.AttatchmentClasses;
-using BaseRMS.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -71,30 +70,28 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	/// </summary>
 	/// <param name="modelBuilder"></param>
 	private void ConfigurePropertyConversions(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<ApplicationRole>(entity =>
-        {
-            entity.Property(e => e.Permitions)
-                .HasConversion(
-                    v => string.Join(',', v.Select(e => e.ToString())),
-                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                          .Select(e => Enum.Parse<PermissionEnum>(e))
-                          .ToList(),
-                new ValueComparer<ICollection<PermissionEnum>>(
-                    (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
-                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                    c => c.ToList()));
-        });
+	{
+		modelBuilder.Entity<ApplicationRole>(entity =>
+		{
+			entity.Property(e => e.Permitions)
+				.HasConversion(
+					v => string.Join(',', v),
+					v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+						  .ToList(),
+				new ValueComparer<ICollection<string>>(
+					(c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
+					c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+					c => c.ToList()));
+		});
 
         modelBuilder.Entity<ActivityLog>(entity =>
         {
             entity.Property(e => e.ActivityTypes)
                 .HasConversion(
-                v => string.Join(',', v.Select(e => e.ToString())),
+                    v => string.Join(',', v),
                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                          .Select(e => Enum.Parse<ActivityTypeEnum>(e))
                           .ToList(),
-                new ValueComparer<ICollection<ActivityTypeEnum>>(
+                new ValueComparer<ICollection<string>>(
                     (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                     c => c.ToList()));

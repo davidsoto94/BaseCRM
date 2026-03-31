@@ -1,4 +1,5 @@
 using BaseRMS.Localization;
+using BaseRMS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Localization;
 
@@ -7,7 +8,7 @@ namespace BaseRMS.Services;
 /// <summary>
 /// Service for localizing identity errors
 /// </summary>
-public class IdentityErrorLocalizerService(IStringLocalizer<IdentityErrorMessages> localizer)
+public class IdentityErrorLocalizerService(IStringLocalizer<IdentityErrorMessages> localizer) : IIdentityErrorLocalizerService
 {
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 

@@ -1,13 +1,12 @@
 ﻿using BaseRMS.Configurations;
 using BaseRMS.DTOs;
 using BaseRMS.Entities;
-using BaseRMS.Enums;
 using BaseRMS.Extensions;
 using BaseRMS.Localization;
 using BaseRMS.Repositories;
+using BaseRMS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using System.Security.Claims;
@@ -19,11 +18,11 @@ public class AccountService(
     UserManager<ApplicationUser> userManager,
     RoleManager<ApplicationRole> roleManager,
     SignInManager<ApplicationUser> signInManager,
-    IEmailSender emailSender,
-    EmailTemplateService emailTemplateService,
-    DeviceTrustService deviceTrustService,
-    IdentityErrorLocalizerService identityErrorLocalizer,
-    JWTTokenService jwtTokenService,
+    IEmailService emailService,
+    IEmailTemplateService emailTemplateService,
+    IDeviceTrustService deviceTrustService,
+    IIdentityErrorLocalizerService identityErrorLocalizer,
+    IJWTTokenService jwtTokenService,
     IHttpContextAccessor httpContextAccessor,
     IStringLocalizer<EmailTemplates> emailLocalizer,
     IStringLocalizer<IdentityErrorMessages> identityLocalizer,
@@ -33,9 +32,10 @@ public class AccountService(
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
     private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
-    private readonly EmailTemplateService _emailTemplateService = emailTemplateService;
-    private readonly DeviceTrustService _deviceTrustService = deviceTrustService;
-    private readonly IdentityErrorLocalizerService _identityErrorLocalizer = identityErrorLocalizer;
+    private readonly IEmailService _emailService = emailService;
+    private readonly IEmailTemplateService _emailTemplateService = emailTemplateService;
+    private readonly IDeviceTrustService _deviceTrustService = deviceTrustService;
+    private readonly IIdentityErrorLocalizerService _identityErrorLocalizer = identityErrorLocalizer;
     private readonly IStringLocalizer<EmailTemplates> _emailLocalizer = emailLocalizer;
     private readonly IStringLocalizer<IdentityErrorMessages> _identityLocalizer = identityLocalizer;
     private readonly ActivityLogRepository _eventLoggerRepository = eventLoggerRepository;
@@ -157,17 +157,12 @@ public class AccountService(
         var emailSubject = _emailLocalizer["EmailSubjectResetPassword"].Value;
 
         // Send the email with localized content
-        await emailSender.SendEmailAsync(email, emailSubject, emailBody);
+        await _emailService.SendEmailAsync(email, emailSubject, emailBody);
     }
 
     public async Task RegisterNewUser(RegisterDTO newUserData, ClaimsPrincipal claims)
     {
         var user = await  GetApplicationUser(claims);
-        var isAuthorizedToAdd = await IsAuthorizedForPermission(user, PermissionEnum.AddUser);
-        if (!isAuthorizedToAdd)
-        {
-            throw new UnauthorizedAccessException(_identityLocalizer["UnauthorizedAccess"].Value);
-        }
         var newUser = await _userManager.FindByEmailAsync(newUserData.Email);
 
         if(newUser != null)
@@ -206,8 +201,8 @@ public class AccountService(
         {
             TriggerUserEmail = user.Email,
             AffectedUsersEmails = new List<string> { newUser.Email! },
-            ActivityTypes = new List<ActivityTypeEnum> { ActivityTypeEnum.UserAdd },
-            DescriptionCode = ActivityTypeEnum.UserAdd.ToString(),
+            ActivityTypes = new List<string> { Permissions.User.Create },
+            DescriptionCode = Permissions.User.Create,
             DescriptionEnglish = string.Format("User {0} added a new user with email {1}", user.Email, newUser.Email)
         });
 
@@ -220,8 +215,8 @@ public class AccountService(
             {
                 TriggerUserEmail = user.Email,
                 AffectedUsersEmails = new List<string> { newUser.Email! },
-                ActivityTypes = new List<ActivityTypeEnum> { ActivityTypeEnum.RoleAdd },
-                DescriptionCode = ActivityTypeEnum.UserAdd.ToString(),
+                ActivityTypes = new List<string> { Permissions.Role.Create },
+                DescriptionCode = Permissions.Role.Create,
                 DescriptionEnglish = string.Format("User {0} added user {1} to the role {2}", user.Email, newUser.Email, role)
             };
 
@@ -288,32 +283,6 @@ public class AccountService(
         }
     }
 
-    public async Task<bool> IsAuthorizedForPermission(ApplicationUser? requestUser, PermissionEnum permissionRequested)
-    {
-        if (requestUser is null)
-        {
-            return false;
-        }
-
-        var permitions = await UserPermitions(requestUser);
-        if (permitions.Contains(permissionRequested))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private async Task<List<PermissionEnum>> UserPermitions(ApplicationUser requestUser)
-    {
-        var userRoles = (await _userManager.GetRolesAsync(requestUser)).ToList();
-        return (await _roleManager.Roles
-            .Where(w => w.Name != null && userRoles.Contains(w.Name))
-            .Select(s => s.Permitions)
-            .ToListAsync())
-            .SelectMany(s => s)
-            .ToList();
-    }
-
     public async Task SendConfirmationEmail(ApplicationUser user)
     {
         string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -325,7 +294,7 @@ public class AccountService(
         var emailSubject = _emailLocalizer["EmailSubjectConfirmEmail"].Value;
 
         // Send the confirmation email
-        await emailSender.SendEmailAsync(user.Email!, emailSubject, emailBody);
+        await _emailService.SendEmailAsync(user.Email!, emailSubject, emailBody);
     }
 
     public async Task<string?> GetAccessTokenWithRefreshToken(ApplicationUser user)

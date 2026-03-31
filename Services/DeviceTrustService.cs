@@ -1,12 +1,13 @@
 using BaseRMS.Entities;
 using BaseRMS.Repositories;
+using BaseRMS.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace BaseRMS.Services;
 
-public class DeviceTrustService
+public class DeviceTrustService : IDeviceTrustService
 {
     private readonly HttpContext _httpContext;
     private readonly AuthRepository _authRepository;
