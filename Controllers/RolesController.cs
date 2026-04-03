@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaseRMS.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class RolesController(
     UserManager<ApplicationUser> userManager,
     RoleManager<ApplicationRole> roleManager,

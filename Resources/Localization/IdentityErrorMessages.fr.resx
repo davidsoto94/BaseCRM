@@ -195,4 +195,10 @@
   <data name="InvalidToken" xml:space="preserve">
     <value>Jeton invalide</value>
   </data>
+  <data name="DuplicateName" xml:space="preserve">
+    <value>Un client avec ce nom existe déjà</value>
+  </data>
+  <data name="InvalidImageFormat" xml:space="preserve">
+    <value>Format d'image invalide. Seules les images JPEG et PNG sont autorisées</value>
+  </data>
 </root>

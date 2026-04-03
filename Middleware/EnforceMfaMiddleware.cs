@@ -1,6 +1,5 @@
 using BaseRMS.Entities;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace BaseRMS.Middleware;
 

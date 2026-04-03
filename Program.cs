@@ -8,7 +8,6 @@ using BaseRMS.Services;
 using BaseRMS.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -68,16 +67,22 @@ builder.Services.AddProblemDetails(options =>
 
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddSingleton<IEmailService, EmailService>();
+
 builder.Services.AddScoped<RoleRepository>();
 builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<ActivityLogRepository>();
+builder.Services.AddScoped<ClientRepository>();
+
+builder.Services.AddScoped<IFileService, InternalFileService>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddScoped<IJWTTokenService, JWTTokenService>();
-builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<IIdentityErrorLocalizerService, IdentityErrorLocalizerService>();
 builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<IMfaService, MfaService>();
 builder.Services.AddScoped<IDeviceTrustService, DeviceTrustService>();
+
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<ClientService>();
 builder.Services.AddHttpContextAccessor();
 
 // Add localization services

@@ -163,23 +163,8 @@ public class AccountService(
     public async Task RegisterNewUser(RegisterDTO newUserData, ClaimsPrincipal claims)
     {
         var user = await  GetApplicationUser(claims);
-        var newUser = await _userManager.FindByEmailAsync(newUserData.Email);
 
-        if(newUser != null)
-        {
-            throw new ValidationException(new List<ValidationError>
-            {
-                new ValidationError
-                {
-                    Field = "email",
-                    Message = string.Format(
-                        _identityLocalizer["DuplicateEmail"].Value,
-                        newUserData.Email)
-                }
-            });
-        }
-
-        newUser = new ApplicationUser
+        var newUser = new ApplicationUser
         {
             UserName = newUserData.Email,
             Name = newUserData.Name,
@@ -192,7 +177,7 @@ public class AccountService(
         {
             throw new ValidationException(result.Errors.Select(s => new ValidationError
             {
-                Field = s.Code,
+                Field = _identityErrorLocalizer.MapIdentityErrorCodeToField(s.Code),
                 Message = _identityErrorLocalizer.LocalizeError(s)
             }));
         }
@@ -236,10 +221,7 @@ public class AccountService(
         if (user == null)
             return (false, null, null, "Invalid token");
 
-        var token = user.RefreshTokens.SingleOrDefault(t => t.Token == refreshToken);
-
-        if (token == null)
-            return (false, null, null, "Invalid token");
+        var token = user.RefreshTokens[0];
 
         // If token is revoked, reject the request
         if (token.Revoked != null)
@@ -328,12 +310,8 @@ public class AccountService(
         if (user == null)
             throw new ArgumentException(_identityLocalizer["InvalidToken"].Value);
 
-        var token = user.RefreshTokens.SingleOrDefault(t => t.Token == refreshToken);
+        var token = user.RefreshTokens[0];
 
-        if (token == null)
-            throw new ArgumentException(_identityLocalizer["InvalidToken"].Value);
-
-        // If token is already revoked, return success
         if (token.Revoked != null)
             return;
 

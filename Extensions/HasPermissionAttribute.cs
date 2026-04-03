@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BaseRMS.Configurations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BaseRMS.Extensions;
 
@@ -23,9 +26,16 @@ public class HasPermissionAttribute : Attribute, IAuthorizationFilter
             return;
         }
 
-        var hasPermission = user.Claims
-            .Where(c => c.Type == "Permission")
-            .Any(c => c.Value == _permission);
+        var permissionsClaim = user.Claims.FirstOrDefault(c => c.Type == Constants.PermissionsClaimType)?.Value;
+
+        if (String.IsNullOrEmpty(permissionsClaim))
+        {
+            context.Result = new ForbidResult();
+            return;
+        }
+
+        var permission = JsonSerializer.Deserialize<List<string>>(permissionsClaim);
+        var hasPermission = permission != null && permission.Contains(_permission);
 
         if (!hasPermission)
         {

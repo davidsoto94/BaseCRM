@@ -195,4 +195,10 @@
   <data name="InvalidToken" xml:space="preserve">
     <value>Invalid token</value>
   </data>
+  <data name="DuplicateName" xml:space="preserve">
+    <value>A client with this name already exists</value>
+  </data>
+  <data name="InvalidImageFormat" xml:space="preserve">
+    <value>Invalid image format. Only JPEG and PNG images are allowed</value>
+  </data>
 </root>

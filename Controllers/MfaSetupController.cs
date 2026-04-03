@@ -2,24 +2,26 @@ using BaseRMS.DTOs;
 using BaseRMS.Entities;
 using BaseRMS.Extensions;
 using BaseRMS.Services;
+using BaseRMS.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaseRMS.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
 [Authorize]
-public class MfaController (UserManager<ApplicationUser> userManager, 
-    MfaService mfaService, 
-    DeviceTrustService deviceTrustService,
+[ExcludeFromCodeCoverage]
+public class MfaController (UserManager<ApplicationUser> userManager,
+    IMfaService mfaService, 
+    IDeviceTrustService deviceTrustService,
     AccountService accountService) : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
-    private readonly MfaService _mfaService = mfaService;
-    private readonly DeviceTrustService _deviceTrustService = deviceTrustService;
+    private readonly IMfaService _mfaService = mfaService;
+    private readonly IDeviceTrustService _deviceTrustService = deviceTrustService;
     private readonly AccountService _accountService = accountService;
 
     [HttpGet]

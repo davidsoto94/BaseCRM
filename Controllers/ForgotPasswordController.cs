@@ -3,11 +3,13 @@ using BaseRMS.Services;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaseRMS.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class ForgotPasswordController (
     AccountService accountService,
     IStringLocalizer<IdentityErrorMessages> localizer

@@ -3,11 +3,13 @@ using BaseRMS.Localization;
 using BaseRMS.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaseRMS.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class ConfirmEmailController (AccountService accountService, IStringLocalizer<IdentityErrorMessages> localizer): ControllerBase
 {
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;

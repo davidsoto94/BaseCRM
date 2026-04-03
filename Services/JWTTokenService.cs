@@ -40,13 +40,13 @@ public class JWTTokenService (
         // Add permissions only if not a scoped token (like MFA verification)
         if (string.IsNullOrEmpty(scope))
         {
-            claims.Add(new Claim("permissions", JsonSerializer.Serialize(allPermissionsPerUser)));
+            claims.Add(new Claim(Constants.PermissionsClaimType, JsonSerializer.Serialize(allPermissionsPerUser)));
         }
         else
         {
             // For scoped tokens, restrict permissions and add scope claim
             claims.Add(new Claim("scope", scope));
-            claims.Add(new Claim("permissions", JsonSerializer.Serialize(new List<string>())));
+            claims.Add(new Claim(Constants.PermissionsClaimType, JsonSerializer.Serialize(new List<string>())));
         }
 
         var randomKey = Guid.NewGuid().ToString();

@@ -24,4 +24,19 @@ public static class Permissions
         public const string Disable = "mfa.disable";
     }
 
+    public static class Client
+    {
+        public const string Create = "client.create";
+        public const string Edit = "client.edit";
+        public const string Delete = "client.delete";
+        public const string View = "client.view";
+    }
+     public static class Contract
+    {
+        public const string Create = "contract.create";
+        public const string Edit = "contract.edit";
+        public const string Delete = "contract.delete";
+        public const string View = "contract.view";
+    }
+
 }

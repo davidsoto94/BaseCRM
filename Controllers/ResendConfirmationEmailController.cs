@@ -3,11 +3,13 @@ using BaseRMS.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaseRMS.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class ResendConfirmationEmailController (UserManager<ApplicationUser> userManager,
     AccountService accountService): ControllerBase
 {

@@ -12,6 +12,20 @@ public class IdentityErrorLocalizerService(IStringLocalizer<IdentityErrorMessage
 {
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
+    public string MapIdentityErrorCodeToField(string errorCode) => errorCode switch
+    {
+        "DuplicateUserName" => "email",
+        "DuplicateEmail" => "email",
+        "InvalidEmail" => "email",
+        "PasswordTooShort" => "newPassword",
+        "PasswordRequiresDigit" => "newPassword",
+        "PasswordRequiresLower" => "newPassword",
+        "PasswordRequiresUpper" => "newPassword",
+        "PasswordRequiresNonAlphanumeric" => "newPassword",
+        "InvalidUserName" => "email",
+        _ => "general"
+    };
+
     /// <summary>
     /// Localizes a collection of IdentityError objects
     /// </summary>

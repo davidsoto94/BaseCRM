@@ -12,4 +12,6 @@ public static class Constants
     public const string EmailUser = "BASE_RMS_EMAIL_USER";
     public const string EmailPassword = "BASE_RMS_EMAIL_PASSWORD";
     public const string ClientUrl = "BASE_RMS_CLIENT_URL";
+    public const string ClientFolderPath = "client-attachments";
+    public const string PermissionsClaimType = "permissions";
 }
