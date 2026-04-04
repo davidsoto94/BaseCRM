@@ -21,7 +21,7 @@ export default function ForgotPassword() {
     setSuccess(false);
     setLoading(true);
     try {
-      const response = await fetchWithLanguage(`${apiBase}/api/v1/forgotpassword`, {
+      const response = await fetchWithLanguage(`${apiBase}/api/v1/password/forgot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

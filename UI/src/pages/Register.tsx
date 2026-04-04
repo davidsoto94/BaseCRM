@@ -69,7 +69,7 @@ export default function Register() {
     setSubmitSuccess(false);
     setSubmitting(true);
     try {
-      const response = await fetchWithAuth(`${apiBase}/api/v1/register`, {
+      const response = await fetchWithAuth(`${apiBase}/api/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

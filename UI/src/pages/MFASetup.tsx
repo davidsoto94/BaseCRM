@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import QRCode from 'qrcode'
 import Sidebar from '../components/Sidebar'
 import { useI18n } from '../i18n/I18nProvider'
 import { apiBase, isAuthenticated, getTempToken, clearTempToken } from '../services/auth'
@@ -9,17 +10,31 @@ type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
 
 type MFASetupResponse = {
   qrCode: string // otpauth:// URI
-  manualKey: string
+  manualKey: string 
   message?: string
   error?: string
 }
 
-// Simple QR code generator using canvas
+// Simple QR code generator using SVG
 async function generateQRCodeImage(text: string): Promise<string> {
-  // Using a public QR code API service
-  const encodedText = encodeURIComponent(text)
-  const dataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodedText}`
-  return dataUrl
+  try {
+    // Generate QR code as SVG data URL
+    const svgString = await QRCode.toString(text, {
+      type: 'image/svg+xml',
+      width: 256,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF',
+      },
+    })
+    // Encode SVG to base64 data URL for browser compatibility
+    const dataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`
+    return dataUrl
+  } catch (error) {
+    console.error('Failed to generate QR code:', error)
+    throw error
+  }
 }
 
 export default function MFASetup() {
