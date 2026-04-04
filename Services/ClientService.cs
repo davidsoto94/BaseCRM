@@ -1,6 +1,7 @@
 ﻿using BaseRMS.Configurations;
 using BaseRMS.DTOs;
 using BaseRMS.Entities;
+using BaseRMS.Entities.Abstract;
 using BaseRMS.Entities.AttatchmentClasses;
 using BaseRMS.Extensions;
 using BaseRMS.Localization;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Localization;
 
 namespace BaseRMS.Services;
 
-public class ClientService (ClientRepository clientRepository,
+public class ClientService(ClientRepository clientRepository,
     IFileService fileService,
     IStringLocalizer<IdentityErrorMessages> identityLocalizer)
 {
@@ -19,16 +20,65 @@ public class ClientService (ClientRepository clientRepository,
     private readonly IFileService _fileService = fileService;
     private readonly IStringLocalizer<IdentityErrorMessages> _identityLocalizer = identityLocalizer;
 
+    public async Task<List<Client>> GetAllClients()
+    {
+        return await _clientRepository.GetClients()
+            .Where(c => c.Active)
+            .ToListAsync();
+    }
+
+    public async Task<List<Client>> GetInactiveClients()
+    {
+        return await _clientRepository.GetClients()
+            .Where(c => !c.Active)
+            .ToListAsync();
+    }
+
+    public async Task DiactivateClient(int id)
+    {
+        var client = await _clientRepository.GetClients().FirstOrDefaultAsync(c => c.Id == id);
+        if (client == null)
+        {
+            throw new KeyNotFoundException(_identityLocalizer["ClientNotFound"].Value);
+        }
+        client.Active = false;
+        await _clientRepository.UpdateClientAsync(client);
+    }
+
+    public async Task Activate(int id)
+    {
+        var client = await _clientRepository.GetClients().FirstOrDefaultAsync(c => c.Id == id);
+        if (client == null)
+        {
+            throw new KeyNotFoundException(_identityLocalizer["ClientNotFound"].Value);
+        }
+        client.Active = true;
+        await _clientRepository.UpdateClientAsync(client);
+    }
+
+    public async Task<Client> GetClientById(int id)
+    {
+        var client = await _clientRepository.GetClients()
+            .Include(c => c.Attachments)
+            .FirstOrDefaultAsync(c => c.Id == id && c.Active);
+        if (client == null)
+        {
+            throw new KeyNotFoundException(_identityLocalizer["ClientNotFound"].Value);
+        }
+        return client;
+    }
+
     public async Task<Client> CreateClient(ClientCreateDTO clientDto)
     {
         var newClient = await _clientRepository.GetClients().FirstOrDefaultAsync(c =>
-            c.Email == clientDto.Email 
+            c.Email == clientDto.Email
             && c.Name == clientDto.Name
             && c.Address == clientDto.Address
         );
 
-        if (newClient != null) { 
-            throw new ValidationException(new List<ValidationError>() { 
+        if (newClient != null)
+        {
+            throw new ValidationException(new List<ValidationError>() {
                 new() { Field = "Email", Message = _identityLocalizer["DuplicateEmail"].Value},
                 new() { Field = "Name", Message = _identityLocalizer["DuplicateName"].Value},
             });
@@ -78,7 +128,7 @@ public class ClientService (ClientRepository clientRepository,
         foreach (var attachment in attachments)
         {
             var filePath = Constants.ClientFolderPath + "\\" + client.Id;
-            filePath = await _fileService.SaveFileAsync(attachment.File, filePath, new Guid() + "_" + attachment.FileName);
+            filePath = await _fileService.SaveFileAsync(attachment.File, filePath, Guid.NewGuid() + "_" + attachment.FileName);
 
             var applicationFile = new ApplicationFile
             {
@@ -86,7 +136,6 @@ public class ClientService (ClientRepository clientRepository,
                 Path = filePath
             };
 
-            // Now create the ClientAttachment with the saved ApplicationFile (which has an ID)
             var clientAttachment = new ClientAttachment
             {
                 Entity = client,
@@ -98,6 +147,6 @@ public class ClientService (ClientRepository clientRepository,
 
             client.Attachments.Add(clientAttachment);
         }
-
     }
+
 }

@@ -21,7 +21,6 @@ public class RolesController(
     private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Get()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -32,4 +31,5 @@ public class RolesController(
         }
         return Ok(userRoles);
     }
+
 }

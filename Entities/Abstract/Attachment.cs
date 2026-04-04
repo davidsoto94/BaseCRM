@@ -10,5 +10,5 @@ public abstract class Attachment<IEntity>
     public DateTime UploadedAt { get; set; }
     public required ApplicationFile File { get; set; }
     public required IEntity Entity { get; set; }
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

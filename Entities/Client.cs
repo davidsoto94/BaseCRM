@@ -8,8 +8,9 @@ public class Client
     public int Id { get; set; }
     public required string Address { get; set; }
     public required string Name { get; set; }
-    public int PhoneNumber { get; set; }
+    public long PhoneNumber { get; set; }
     public string? Email { get; set; }
+    [JsonIgnore]
     public string? ClientImagePath { get; set; }
     [JsonIgnore]
     public bool Active { get; set; } = true;

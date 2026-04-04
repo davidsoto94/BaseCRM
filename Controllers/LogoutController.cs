@@ -1,7 +1,5 @@
-﻿using BaseRMS.Localization;
-using BaseRMS.Services;
+﻿using BaseRMS.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BaseRMS.Controllers;
@@ -10,10 +8,8 @@ namespace BaseRMS.Controllers;
 [ApiController]
 [ExcludeFromCodeCoverage]
 
-public class LogoutController (AccountService accountService
-    , IStringLocalizer<IdentityErrorMessages> localizer) : ControllerBase
+public class LogoutController (AccountService accountService) : ControllerBase
 {
-    private readonly IStringLocalizer<IdentityErrorMessages> _localizer = localizer;
 
     [HttpPost()]
     public async Task<IActionResult> Post()

@@ -30,6 +30,7 @@ public static class Permissions
         public const string Edit = "client.edit";
         public const string Delete = "client.delete";
         public const string View = "client.view";
+        public const string List = "client.list";
     }
      public static class Contract
     {
