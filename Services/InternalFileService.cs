@@ -30,6 +30,8 @@ public class InternalFileService : IFileService
         return filePath;
     }
 
+
+
     public Task<string> DeleteFileAsync(string fullFilePath)
     {
         if (File.Exists(fullFilePath))
@@ -37,5 +39,25 @@ public class InternalFileService : IFileService
             File.Delete(fullFilePath);
         }
         return Task.FromResult(fullFilePath);
+    }
+
+    public async Task<byte[]?> GetFileAsync(string fullFilePath)
+    {
+        if (!File.Exists(fullFilePath))
+        {
+            return null;
+        }
+        var fileBytes = await File.ReadAllBytesAsync(fullFilePath);
+        return fileBytes;
+    }
+
+    public async Task<Stream?> GetFileStreamAsync(string fullFilePath)
+    {
+        if (!File.Exists(fullFilePath))
+        {
+            return null;
+        }
+        var fileStream = new FileStream(fullFilePath, FileMode.Open, FileAccess.Read);
+        return fileStream;
     }
 }

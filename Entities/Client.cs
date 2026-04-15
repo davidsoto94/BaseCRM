@@ -1,4 +1,5 @@
 ﻿using BaseRMS.Entities.AttatchmentClasses;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace BaseRMS.Entities;

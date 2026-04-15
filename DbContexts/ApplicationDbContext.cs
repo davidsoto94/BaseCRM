@@ -36,6 +36,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public required DbSet<Event> Events { get; set; }
     public required DbSet<EventAttachment> EventAttachments { get; set; }
     public required DbSet<EventCategory> EventCategories { get; set; }
+    public required DbSet<FileVersion> FileVersions { get; set; }
     public required DbSet<Machine> Machines { get; set; }
     public required DbSet<MachineAttachment> MachineAttachments { get; set; }
     public required DbSet<MachineType> MachineTypes { get; set; }
@@ -58,6 +59,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<ApplicationRole>().ToTable("asp_net_roles");
         modelBuilder.Entity<IdentityUserRole<string>>().ToTable("asp_net_user_roles");
         modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("asp_net_role_claims");
+
+        modelBuilder.Entity<ApplicationFile>()
+            .HasOne(f => f.CurrentVersion)
+            .WithMany()
+            .HasForeignKey(f => f.CurrentVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ApplicationFile>()
+            .HasMany(f => f.Versions)
+            .WithOne(v => v.File)
+            .HasForeignKey(v => v.FileId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         ConfigureAttachment<Client, ClientAttachment>(modelBuilder);
 

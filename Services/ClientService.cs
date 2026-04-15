@@ -7,6 +7,7 @@ using BaseRMS.Extensions;
 using BaseRMS.Localization;
 using BaseRMS.Repositories;
 using BaseRMS.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
@@ -66,6 +67,37 @@ public class ClientService(ClientRepository clientRepository,
             throw new KeyNotFoundException(_identityLocalizer["ClientNotFound"].Value);
         }
         return client;
+    }
+
+    public async Task<FileStreamResult> GetClientImage(int id)
+    {
+        var client = await _clientRepository.GetClients().FirstOrDefaultAsync(c => c.Id == id);
+        if (client == null)
+        {
+            throw new KeyNotFoundException(_identityLocalizer["ClientNotFound"].Value);
+        }
+        if (client.ClientImagePath == null)
+        {
+            throw new KeyNotFoundException(_identityLocalizer["ClientImageNotFound"].Value);
+        }
+        var fileStream = await _fileService.GetFileStreamAsync(client.ClientImagePath);
+        if (fileStream == null)
+        {
+            throw new KeyNotFoundException(_identityLocalizer["ClientImageNotFound"].Value);
+        }
+        var extension = Path.GetExtension(client.ClientImagePath).ToLower();
+
+        var mimeType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            _ => "application/octet-stream"
+        };
+
+        return new FileStreamResult(fileStream, mimeType)
+        {
+            EnableRangeProcessing = true // Allows browser caching and range requests
+        };
     }
 
     public async Task<Client> CreateClient(ClientCreateDTO clientDto)
@@ -133,7 +165,12 @@ public class ClientService(ClientRepository clientRepository,
             var applicationFile = new ApplicationFile
             {
                 Name = attachment.FileName,
-                Path = filePath
+                CurrentVersion = new FileVersion
+                {
+                    VersionNumber = 1,
+                    StoragePath = filePath,
+                    CreatedAt = DateTime.UtcNow
+                }
             };
 
             var clientAttachment = new ClientAttachment

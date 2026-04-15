@@ -10,6 +10,7 @@ namespace BaseRMS.Controllers;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[Authorize]
 [ExcludeFromCodeCoverage]
 public class RolesController(
     UserManager<ApplicationUser> userManager,

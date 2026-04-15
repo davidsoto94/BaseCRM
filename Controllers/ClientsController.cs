@@ -52,7 +52,17 @@ public class ClientsController (ClientService clientService) : ControllerBase
     public async Task<IActionResult> Get(int id)
     {
         var client = await clientService.GetClientById(id);
+                
         return Ok(client);
+    }
+
+    [HttpGet("{id}/image")]
+    [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any)]
+    [HasPermission(Permissions.Client.View)]
+    public async Task<IActionResult> GetClientImage(int id)
+    {
+        var imageData = await clientService.GetClientImage(id);
+        return Ok(imageData);
     }
 
     [HttpPost]
