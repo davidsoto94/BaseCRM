@@ -1,7 +1,6 @@
 ﻿using BaseRMS.Configurations;
 using BaseRMS.DTOs;
 using BaseRMS.Entities;
-using BaseRMS.Entities.Abstract;
 using BaseRMS.Entities.AttatchmentClasses;
 using BaseRMS.Extensions;
 using BaseRMS.Localization;
