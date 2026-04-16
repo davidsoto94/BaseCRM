@@ -72,6 +72,7 @@ builder.Services.AddScoped<RoleRepository>();
 builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<ActivityLogRepository>();
 builder.Services.AddScoped<ClientRepository>();
+builder.Services.AddScoped<ContractRepository>();
 
 builder.Services.AddScoped<IFileService, InternalFileService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
@@ -83,6 +84,7 @@ builder.Services.AddScoped<IDeviceTrustService, DeviceTrustService>();
 
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<ClientService>();
+builder.Services.AddScoped<ContractService>();
 builder.Services.AddHttpContextAccessor();
 
 // Add localization services
