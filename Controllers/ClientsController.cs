@@ -74,7 +74,7 @@ public class ClientsController (ClientService clientService) : ControllerBase
     }
 
     [HttpPost("{id}/deactivate")]
-    [HasPermission(Permissions.User.Edit)]
+    [HasPermission(Permissions.Client.Edit)]
     public async Task<IActionResult> Deactivate(int id)
     {
         await clientService.DiactivateClient(id);
@@ -82,7 +82,7 @@ public class ClientsController (ClientService clientService) : ControllerBase
     }
 
     [HttpPost("{id}/activate")]
-    [HasPermission(Permissions.User.Edit)]
+    [HasPermission(Permissions.Client.Edit)]
     public async Task<IActionResult> Activate(int id)
     {
         await clientService.Activate(id);

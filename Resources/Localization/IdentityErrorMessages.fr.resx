@@ -201,4 +201,7 @@
   <data name="InvalidImageFormat" xml:space="preserve">
     <value>Format d'image invalide. Seules les images JPEG et PNG sont autorisées</value>
   </data>
+  <data name="UserRequired" xml:space="preserve">
+    <value>L'utilisateur c'est require.</value>
+  </data>
 </root>

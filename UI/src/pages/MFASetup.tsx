@@ -20,7 +20,7 @@ async function generateQRCodeImage(text: string): Promise<string> {
   try {
     // Generate QR code as SVG data URL
     const svgString = await QRCode.toString(text, {
-      type: 'image/svg+xml',
+      type: 'svg',
       width: 256,
       margin: 2,
       color: {
@@ -29,7 +29,8 @@ async function generateQRCodeImage(text: string): Promise<string> {
       },
     })
     // Encode SVG to base64 data URL for browser compatibility
-    const dataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`
+    const dataUrl = `data:image/svg+xml;base64,${btoa(
+      (encodeURIComponent(svgString)))}`
     return dataUrl
   } catch (error) {
     console.error('Failed to generate QR code:', error)

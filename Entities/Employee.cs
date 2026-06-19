@@ -17,4 +17,5 @@ public class Employee
     public string EmergencyContactPhone { get; set; } = string.Empty;
     public bool HasKey { get; set; } = false;
     public ICollection<EmployeeAttachment> Attachments { get; set; } = new List<EmployeeAttachment>();
+    public ICollection<EmployeeContract> Contracts { get; set; } = new List<EmployeeContract>();
 }

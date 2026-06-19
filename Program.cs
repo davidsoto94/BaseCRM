@@ -73,6 +73,8 @@ builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<ActivityLogRepository>();
 builder.Services.AddScoped<ClientRepository>();
 builder.Services.AddScoped<ContractRepository>();
+builder.Services.AddScoped<EmployeeRepository>();
+builder.Services.AddScoped<EventRepository>();
 
 builder.Services.AddScoped<IFileService, InternalFileService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
@@ -140,7 +142,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
-app.UseStaticFiles();
+//app.UseStaticFiles();
 app.UseRouting();
 app.UseRequestLocalization();
 app.UseCors();

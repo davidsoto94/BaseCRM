@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace BaseRMS.Entities;
 
@@ -28,4 +29,8 @@ public class EmployeeContract
     public decimal? ContractRate { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    [JsonIgnore]
+    public Employee Employee { get; set; } = null!;
+    [JsonIgnore]
+    public Contract Contract { get; set; } = null!;
 }

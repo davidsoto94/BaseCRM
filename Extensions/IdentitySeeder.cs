@@ -1,6 +1,7 @@
 ﻿using BaseRMS.Entities;
 using BaseRMS.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseRMS.Extensions;
 
@@ -13,6 +14,7 @@ public static class IdentitySeeder
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
             var roleRepository = scope.ServiceProvider.GetRequiredService<RoleRepository>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var eventRepository = scope.ServiceProvider.GetRequiredService<EventRepository>();
 
             var allPermissions = typeof(Permissions)
                 .GetNestedTypes()
@@ -63,6 +65,13 @@ public static class IdentitySeeder
             {
                 // Assign the Admin role to the user
                 await userManager.AddToRoleAsync(userExist!, "Admin");
+            }
+
+            var automatiCategoryEvent = await eventRepository.GetEventCategories().Where(ec => ec.Name == "System").FirstOrDefaultAsync();
+            if(automatiCategoryEvent == default)
+            {
+                automatiCategoryEvent = new EventCategory { Name = "System" };
+                await eventRepository.CreateEventCategoryAsync(automatiCategoryEvent);
             }
         }
     }
